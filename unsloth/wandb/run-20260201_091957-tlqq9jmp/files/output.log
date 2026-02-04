@@ -1,0 +1,136 @@
+[34m[1mwandb[0m: Detected [huggingface_hub.inference, openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|▏                                                                                                                                                    | 1/790 [00:42<9:19:51, 42.58s/it][libav.opus|ERROR]Error parsing Opus packet header.
+Unsloth: Will smartly offload gradients to save VRAM!
+{'loss': 3.0243, 'grad_norm': 1.5583170652389526, 'learning_rate': 0.0, 'epoch': 0.0}
+  2%|███▎                                                                                                                                              | 18/790 [45:01<48:40:30, 226.98s/it]Traceback (most recent call last):
+{'loss': 3.236, 'grad_norm': 1.6727004051208496, 'learning_rate': 4e-05, 'epoch': 0.0}
+{'loss': 3.1037, 'grad_norm': 1.6229937076568604, 'learning_rate': 8e-05, 'epoch': 0.0}
+{'loss': 3.0415, 'grad_norm': 1.479722499847412, 'learning_rate': 0.00012, 'epoch': 0.01}
+{'loss': 3.0398, 'grad_norm': 1.4891078472137451, 'learning_rate': 0.00016, 'epoch': 0.01}
+{'loss': 2.6969, 'grad_norm': 1.4788910150527954, 'learning_rate': 0.0002, 'epoch': 0.01}
+{'loss': 2.5376, 'grad_norm': 1.0167553424835205, 'learning_rate': 0.00019974522292993632, 'epoch': 0.01}
+{'loss': 2.3844, 'grad_norm': 1.1083824634552002, 'learning_rate': 0.00019949044585987262, 'epoch': 0.01}
+{'loss': 2.2214, 'grad_norm': 1.093233346939087, 'learning_rate': 0.00019923566878980893, 'epoch': 0.01}
+{'loss': 2.2535, 'grad_norm': 1.1627737283706665, 'learning_rate': 0.00019898089171974524, 'epoch': 0.01}
+{'loss': 2.1222, 'grad_norm': 1.6086480617523193, 'learning_rate': 0.00019872611464968155, 'epoch': 0.01}
+{'loss': 1.9429, 'grad_norm': 0.880325198173523, 'learning_rate': 0.00019847133757961786, 'epoch': 0.02}
+{'loss': 1.9212, 'grad_norm': 0.7996416687965393, 'learning_rate': 0.00019821656050955416, 'epoch': 0.02}
+{'loss': 2.0513, 'grad_norm': 0.6467726826667786, 'learning_rate': 0.00019796178343949044, 'epoch': 0.02}
+{'loss': 1.8192, 'grad_norm': 0.615527868270874, 'learning_rate': 0.00019770700636942675, 'epoch': 0.02}
+{'loss': 1.8618, 'grad_norm': 0.8389323353767395, 'learning_rate': 0.00019745222929936306, 'epoch': 0.02}
+{'loss': 1.8408, 'grad_norm': 0.6826387643814087, 'learning_rate': 0.00019719745222929937, 'epoch': 0.02}
+{'loss': 1.8114, 'grad_norm': 0.912170946598053, 'learning_rate': 0.00019694267515923567, 'epoch': 0.02}
+  File "/home/liwt/IVCP/unsloth/model.py", line 63, in <module>
+    ),
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 328, in _fast_inner_training_loop
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 1099, in training_step
+    return super().training_step(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 40, in _unsloth_training_step
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 1088, in compute_loss
+    outputs = super().compute_loss(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth/models/_utils.py", line 1640, in _unsloth_pre_compute_loss
+    outputs = self._old_compute_loss(model, inputs, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 36, in compute_loss
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/utils/operations.py", line 819, in forward
+    return model_forward(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/utils/operations.py", line 807, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/peft/peft_model.py", line 1923, in forward
+    return self.base_model(
+           ^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/peft/tuners/tuners_utils.py", line 308, in forward
+    return self.model.forward(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/unsloth_compiled_module_qwen2_5_vl.py", line 897, in forward
+    return Qwen2_5_VLForConditionalGeneration_forward(self, input_ids, attention_mask, position_ids, past_key_values, inputs_embeds, labels, use_cache, output_attentions, output_hidden_states, pixel_values, pixel_values_videos, image_grid_thw, video_grid_thw, rope_deltas, cache_position, second_per_grid_ts, logits_to_keep, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/utils/generic.py", line 918, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/unsloth_compiled_module_qwen2_5_vl.py", line 739, in Qwen2_5_VLForConditionalGeneration_forward
+    requires_grad_ = self.lm_head.weight.requires_grad
+                     ^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1915, in __getattr__
+    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/liwt/IVCP/unsloth/model.py", line 63, in <module>
+    ),
+^^^^^^^
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 328, in _fast_inner_training_loop
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 1099, in training_step
+    return super().training_step(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 40, in _unsloth_training_step
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 1088, in compute_loss
+    outputs = super().compute_loss(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth/models/_utils.py", line 1640, in _unsloth_pre_compute_loss
+    outputs = self._old_compute_loss(model, inputs, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 36, in compute_loss
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/utils/operations.py", line 819, in forward
+    return model_forward(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/utils/operations.py", line 807, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/peft/peft_model.py", line 1923, in forward
+    return self.base_model(
+           ^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/peft/tuners/tuners_utils.py", line 308, in forward
+    return self.model.forward(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/unsloth_compiled_module_qwen2_5_vl.py", line 897, in forward
+    return Qwen2_5_VLForConditionalGeneration_forward(self, input_ids, attention_mask, position_ids, past_key_values, inputs_embeds, labels, use_cache, output_attentions, output_hidden_states, pixel_values, pixel_values_videos, image_grid_thw, video_grid_thw, rope_deltas, cache_position, second_per_grid_ts, logits_to_keep, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

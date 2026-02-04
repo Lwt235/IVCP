@@ -1,0 +1,11 @@
+{"time":"2026-01-31T16:37:42.056880233+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.1"}
+{"time":"2026-01-31T16:37:43.299615346+08:00","level":"INFO","msg":"stream: created new stream","id":"gusrxbix"}
+{"time":"2026-01-31T16:37:43.299768474+08:00","level":"INFO","msg":"handler: started","stream_id":"gusrxbix"}
+{"time":"2026-01-31T16:37:43.299955731+08:00","level":"INFO","msg":"stream: started","id":"gusrxbix"}
+{"time":"2026-01-31T16:37:43.299988171+08:00","level":"INFO","msg":"writer: started","stream_id":"gusrxbix"}
+{"time":"2026-01-31T16:37:43.30000625+08:00","level":"INFO","msg":"sender: started","stream_id":"gusrxbix"}
+{"time":"2026-01-31T16:37:56.513401191+08:00","level":"INFO","msg":"stream: closing","id":"gusrxbix"}
+{"time":"2026-01-31T16:37:57.533028696+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-01-31T16:37:58.073477142+08:00","level":"INFO","msg":"handler: closed","stream_id":"gusrxbix"}
+{"time":"2026-01-31T16:37:58.07362265+08:00","level":"INFO","msg":"sender: closed","stream_id":"gusrxbix"}
+{"time":"2026-01-31T16:37:58.073638829+08:00","level":"INFO","msg":"stream: closed","id":"gusrxbix"}

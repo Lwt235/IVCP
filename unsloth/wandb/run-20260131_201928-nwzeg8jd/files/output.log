@@ -1,0 +1,195 @@
+[34m[1mwandb[0m: Detected [huggingface_hub.inference, openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|                                                                                                                                                               | 0/198 [00:00<?, ?it/s][libav.opus|ERROR]Error parsing Opus packet header.
+Unsloth: Will smartly offload gradients to save VRAM!
+Traceback (most recent call last):
+  File "/home/liwt/IVCP/unsloth/model.py", line 63, in <module>
+    trainer.train()
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 328, in _fast_inner_training_loop
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 1099, in training_step
+    return super().training_step(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 91, in _unsloth_training_step
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/accelerator.py", line 2740, in backward
+    loss.backward(**kwargs)
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_tensor.py", line 626, in backward
+    torch.autograd.backward(
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/autograd/__init__.py", line 347, in backward
+    _engine_run_backward(
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/autograd/graph.py", line 823, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/autograd/function.py", line 307, in apply
+    return user_fn(self, *args)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/gradient_checkpointing.py", line 583, in backward
+    outputs = ctx.run_function(*detached_inputs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/models/qwen2_5_vl/modeling_qwen2_5_vl.py", line 757, in forward
+    hidden_states = self.mlp(hidden_states)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/unsloth_compiled_module_qwen2_5_vl.py", line 455, in forward
+    return Qwen2MLP_forward(self, x)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 574, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/unsloth_compiled_module_qwen2_5_vl.py", line 438, in Qwen2MLP_forward
+    @torch.compile(fullgraph = False, dynamic = True, options = torch_compile_options)
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 745, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/aot_autograd.py", line 1184, in forward
+    return compiled_fn(full_args)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 310, in runtime_wrapper
+    all_outs = call_func_at_runtime_with_args(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/utils.py", line 126, in call_func_at_runtime_with_args
+    out = normalize_as_list(f(args))
+                            ^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/utils.py", line 100, in g
+    return f(*args)
+           ^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 1585, in forward
+    fw_outs = call_func_at_runtime_with_args(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/utils.py", line 126, in call_func_at_runtime_with_args
+    out = normalize_as_list(f(args))
+                            ^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 490, in wrapper
+    return compiled_fn(runtime_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 672, in inner_fn
+    outs = compiled_fn(args)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_inductor/output_code.py", line 466, in __call__
+    return self.current_callable(inputs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_inductor/utils.py", line 2128, in run
+    return model(new_inputs)
+           ^^^^^^^^^^^^^^^^^
+  File "/tmp/torchinductor_liwt/fr/cfrkwpjiz24qf4gkczcl3w6bw73gmjgfdzcf2wahy23yvjedpsmf.py", line 293, in call
+    buf8 = empty_strided_cuda((s0*s1, 11008), (11008, 1), torch.bfloat16)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1024.00 MiB. GPU 0 has a total capacity of 47.53 GiB of which 278.81 MiB is free. Including non-PyTorch memory, this process has 15.67 GiB memory in use. Process 13703 has 31.55 GiB memory in use. Of the allocated memory 15.22 GiB is allocated by PyTorch, and 114.32 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/home/liwt/IVCP/unsloth/model.py", line 63, in <module>
+    trainer.train()
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 328, in _fast_inner_training_loop
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 1099, in training_step
+    return super().training_step(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 91, in _unsloth_training_step
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/accelerator.py", line 2740, in backward
+    loss.backward(**kwargs)
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_tensor.py", line 626, in backward
+    torch.autograd.backward(
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/autograd/__init__.py", line 347, in backward
+    _engine_run_backward(
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/autograd/graph.py", line 823, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/autograd/function.py", line 307, in apply
+    return user_fn(self, *args)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/gradient_checkpointing.py", line 583, in backward
+    outputs = ctx.run_function(*detached_inputs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/models/qwen2_5_vl/modeling_qwen2_5_vl.py", line 757, in forward
+    hidden_states = self.mlp(hidden_states)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/unsloth_compiled_module_qwen2_5_vl.py", line 455, in forward
+    return Qwen2MLP_forward(self, x)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 574, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/unsloth_compiled_module_qwen2_5_vl.py", line 438, in Qwen2MLP_forward
+    @torch.compile(fullgraph = False, dynamic = True, options = torch_compile_options)
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 745, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/aot_autograd.py", line 1184, in forward
+    return compiled_fn(full_args)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 310, in runtime_wrapper
+    all_outs = call_func_at_runtime_with_args(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/utils.py", line 126, in call_func_at_runtime_with_args
+    out = normalize_as_list(f(args))
+                            ^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/utils.py", line 100, in g
+    return f(*args)
+           ^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 1585, in forward
+    fw_outs = call_func_at_runtime_with_args(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/utils.py", line 126, in call_func_at_runtime_with_args
+    out = normalize_as_list(f(args))
+                            ^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 490, in wrapper
+    return compiled_fn(runtime_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 672, in inner_fn
+    outs = compiled_fn(args)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_inductor/output_code.py", line 466, in __call__
+    return self.current_callable(inputs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/_inductor/utils.py", line 2128, in run
+    return model(new_inputs)
+           ^^^^^^^^^^^^^^^^^
+  File "/tmp/torchinductor_liwt/fr/cfrkwpjiz24qf4gkczcl3w6bw73gmjgfdzcf2wahy23yvjedpsmf.py", line 293, in call
+    buf8 = empty_strided_cuda((s0*s1, 11008), (11008, 1), torch.bfloat16)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1024.00 MiB. GPU 0 has a total capacity of 47.53 GiB of which 278.81 MiB is free. Including non-PyTorch memory, this process has 15.67 GiB memory in use. Process 13703 has 31.55 GiB memory in use. Of the allocated memory 15.22 GiB is allocated by PyTorch, and 114.32 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

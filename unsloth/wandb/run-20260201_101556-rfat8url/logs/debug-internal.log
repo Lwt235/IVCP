@@ -1,0 +1,11 @@
+{"time":"2026-02-01T10:15:56.581693876+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.1"}
+{"time":"2026-02-01T10:15:57.627698474+08:00","level":"INFO","msg":"stream: created new stream","id":"rfat8url"}
+{"time":"2026-02-01T10:15:57.627833162+08:00","level":"INFO","msg":"handler: started","stream_id":"rfat8url"}
+{"time":"2026-02-01T10:15:57.62795686+08:00","level":"INFO","msg":"stream: started","id":"rfat8url"}
+{"time":"2026-02-01T10:15:57.62797528+08:00","level":"INFO","msg":"writer: started","stream_id":"rfat8url"}
+{"time":"2026-02-01T10:15:57.628032389+08:00","level":"INFO","msg":"sender: started","stream_id":"rfat8url"}
+{"time":"2026-02-01T10:33:02.391577886+08:00","level":"INFO","msg":"stream: closing","id":"rfat8url"}
+{"time":"2026-02-01T10:33:04.295559099+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-02-01T10:33:05.394843889+08:00","level":"INFO","msg":"handler: closed","stream_id":"rfat8url"}
+{"time":"2026-02-01T10:33:05.395012767+08:00","level":"INFO","msg":"sender: closed","stream_id":"rfat8url"}
+{"time":"2026-02-01T10:33:05.395036586+08:00","level":"INFO","msg":"stream: closed","id":"rfat8url"}

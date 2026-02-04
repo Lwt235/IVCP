@@ -1,0 +1,85 @@
+[34m[1mwandb[0m: Detected [huggingface_hub.inference, openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  2%|██▋                                                                                                                                                  | 7/395 [13:37<9:48:14, 90.96s/it]Traceback (most recent call last):
+Unsloth: Will smartly offload gradients to save VRAM!
+{'loss': 3.2211, 'grad_norm': 2.5038514137268066, 'learning_rate': 0.0, 'epoch': 0.0}
+{'loss': 3.2299, 'grad_norm': 2.5604896545410156, 'learning_rate': 4e-05, 'epoch': 0.01}
+{'loss': 3.3229, 'grad_norm': 2.397969961166382, 'learning_rate': 8e-05, 'epoch': 0.01}
+{'loss': 3.1487, 'grad_norm': 2.3695461750030518, 'learning_rate': 0.00012, 'epoch': 0.01}
+{'loss': 2.9428, 'grad_norm': 1.879156231880188, 'learning_rate': 0.00016, 'epoch': 0.01}
+{'loss': 2.7175, 'grad_norm': 1.7009670734405518, 'learning_rate': 0.0002, 'epoch': 0.02}
+{'loss': 2.5375, 'grad_norm': 1.330849528312683, 'learning_rate': 0.0001994871794871795, 'epoch': 0.02}
+  File "/home/liwt/IVCP/unsloth/model.py", line 70, in <module>
+    trainer.train()
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/utils/memory.py", line 177, in decorator
+    return function(batch_size, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 272, in _fast_inner_training_loop
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/loss_utils.py", line 326, in _unsloth_get_batch_samples
+    batch_samples += [next(epoch_iterator)]
+                      ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/data_loader.py", line 579, in __iter__
+    next_batch = next(dataloader_iter)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 708, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1458, in _next_data
+    idx, data = self._get_data()
+                ^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1410, in _get_data
+    success, data = self._try_get_data()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1251, in _try_get_data
+    data = self._data_queue.get(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/queue.py", line 180, in get
+    self.not_empty.wait(remaining)
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/threading.py", line 331, in wait
+    gotit = waiter.acquire(True, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/liwt/IVCP/unsloth/model.py", line 70, in <module>
+    trainer.train()
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/utils/memory.py", line 177, in decorator
+    return function(batch_size, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 272, in _fast_inner_training_loop
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/loss_utils.py", line 326, in _unsloth_get_batch_samples
+    batch_samples += [next(epoch_iterator)]
+                      ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/data_loader.py", line 579, in __iter__
+    next_batch = next(dataloader_iter)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 708, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1458, in _next_data
+    idx, data = self._get_data()
+                ^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1410, in _get_data
+    success, data = self._try_get_data()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1251, in _try_get_data
+    data = self._data_queue.get(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/queue.py", line 180, in get
+    self.not_empty.wait(remaining)
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/threading.py", line 331, in wait
+    gotit = waiter.acquire(True, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

@@ -1,0 +1,125 @@
+[34m[1mwandb[0m: Detected [huggingface_hub.inference, openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|▏                                                                                                                                                   | 2/1580 [00:42<8:29:03, 19.36s/it][libav.opus|ERROR]Error parsing Opus packet header.
+Unsloth: Will smartly offload gradients to save VRAM!
+{'loss': 3.0484, 'grad_norm': 1.616858959197998, 'learning_rate': 0.0, 'epoch': 0.0}
+{'loss': 3.0004, 'grad_norm': 1.6928434371948242, 'learning_rate': 4e-05, 'epoch': 0.0}
+  2%|██▍                                                                                                                                               | 26/1580 [17:02<10:05:35, 23.38s/it]Traceback (most recent call last):
+{'loss': 3.239, 'grad_norm': 2.0955142974853516, 'learning_rate': 8e-05, 'epoch': 0.0}
+{'loss': 3.1228, 'grad_norm': 1.5526292324066162, 'learning_rate': 0.00012, 'epoch': 0.0}
+{'loss': 2.7064, 'grad_norm': 1.364258885383606, 'learning_rate': 0.00016, 'epoch': 0.0}
+{'loss': 2.7373, 'grad_norm': 1.3541070222854614, 'learning_rate': 0.0002, 'epoch': 0.0}
+{'loss': 2.5211, 'grad_norm': 1.185734510421753, 'learning_rate': 0.0001998730158730159, 'epoch': 0.0}
+{'loss': 2.3705, 'grad_norm': 1.153599739074707, 'learning_rate': 0.00019974603174603174, 'epoch': 0.01}
+{'loss': 2.4373, 'grad_norm': 1.2209397554397583, 'learning_rate': 0.00019961904761904765, 'epoch': 0.01}
+{'loss': 2.3248, 'grad_norm': 1.4126237630844116, 'learning_rate': 0.0001994920634920635, 'epoch': 0.01}
+{'loss': 2.1546, 'grad_norm': 1.2127292156219482, 'learning_rate': 0.00019936507936507938, 'epoch': 0.01}
+{'loss': 2.1188, 'grad_norm': 1.1149863004684448, 'learning_rate': 0.00019923809523809523, 'epoch': 0.01}
+{'loss': 2.0702, 'grad_norm': 0.9562593102455139, 'learning_rate': 0.00019911111111111111, 'epoch': 0.01}
+{'loss': 2.054, 'grad_norm': 0.8292996883392334, 'learning_rate': 0.000198984126984127, 'epoch': 0.01}
+{'loss': 1.7579, 'grad_norm': 0.9078184366226196, 'learning_rate': 0.00019885714285714287, 'epoch': 0.01}
+{'loss': 1.9377, 'grad_norm': 0.7975819110870361, 'learning_rate': 0.00019873015873015875, 'epoch': 0.01}
+{'loss': 1.9475, 'grad_norm': 0.9092758893966675, 'learning_rate': 0.0001986031746031746, 'epoch': 0.01}
+{'loss': 1.6777, 'grad_norm': 0.8310667872428894, 'learning_rate': 0.00019847619047619049, 'epoch': 0.01}
+{'loss': 1.8836, 'grad_norm': 0.8320452570915222, 'learning_rate': 0.00019834920634920634, 'epoch': 0.01}
+{'loss': 1.8681, 'grad_norm': 0.7885993719100952, 'learning_rate': 0.00019822222222222225, 'epoch': 0.01}
+{'loss': 1.673, 'grad_norm': 0.8561416864395142, 'learning_rate': 0.0001980952380952381, 'epoch': 0.01}
+{'loss': 1.9958, 'grad_norm': 0.828724205493927, 'learning_rate': 0.00019796825396825398, 'epoch': 0.01}
+{'loss': 1.6692, 'grad_norm': 1.0504984855651855, 'learning_rate': 0.00019784126984126986, 'epoch': 0.01}
+{'loss': 1.7507, 'grad_norm': 0.7401527166366577, 'learning_rate': 0.0001977142857142857, 'epoch': 0.02}
+{'loss': 1.7671, 'grad_norm': 0.7752206921577454, 'learning_rate': 0.0001975873015873016, 'epoch': 0.02}
+{'loss': 1.7169, 'grad_norm': 0.7675428986549377, 'learning_rate': 0.00019746031746031747, 'epoch': 0.02}
+  File "/home/liwt/IVCP/unsloth/model.py", line 66, in <module>
+    trainer.train()
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 272, in _fast_inner_training_loop
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/loss_utils.py", line 326, in _unsloth_get_batch_samples
+    batch_samples += [next(epoch_iterator)]
+                      ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/data_loader.py", line 579, in __iter__
+    next_batch = next(dataloader_iter)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 708, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 764, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 812, in __call__
+    image, video, video_kwarg = self._extract_images_videos_for_example(example, messages)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 911, in _extract_images_videos_for_example
+    image, video, video_kwarg = process_vision_info(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 570, in process_vision_info
+    video_input, video_sample_fps = fetch_video(vision_info, image_factor=size_factor, return_video_sample_fps=True)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 469, in fetch_video
+    video, sample_fps = VIDEO_READER_BACKENDS[video_reader_backend](ele)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 261, in _read_video_torchvision
+    video, audio, info = io.read_video(
+                         ^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torchvision/io/video.py", line 339, in read_video
+    video_frames = _read_from_stream(
+                   ^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torchvision/io/video.py", line 236, in _read_from_stream
+    if frame.pts >= end_offset:
+       ^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/liwt/IVCP/unsloth/model.py", line 66, in <module>
+    trainer.train()
+  File "/home/liwt/IVCP/unsloth/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 272, in _fast_inner_training_loop
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/loss_utils.py", line 326, in _unsloth_get_batch_samples
+    batch_samples += [next(epoch_iterator)]
+                      ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/data_loader.py", line 579, in __iter__
+    next_batch = next(dataloader_iter)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 708, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 764, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 812, in __call__
+    image, video, video_kwarg = self._extract_images_videos_for_example(example, messages)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 911, in _extract_images_videos_for_example
+    image, video, video_kwarg = process_vision_info(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 570, in process_vision_info
+    video_input, video_sample_fps = fetch_video(vision_info, image_factor=size_factor, return_video_sample_fps=True)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 469, in fetch_video
+    video, sample_fps = VIDEO_READER_BACKENDS[video_reader_backend](ele)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 261, in _read_video_torchvision
+    video, audio, info = io.read_video(
+                         ^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torchvision/io/video.py", line 339, in read_video
+    video_frames = _read_from_stream(
+                   ^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torchvision/io/video.py", line 236, in _read_from_stream
+    if frame.pts >= end_offset:
+       ^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

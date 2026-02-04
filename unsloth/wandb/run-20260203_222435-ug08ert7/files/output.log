@@ -1,0 +1,33 @@
+[34m[1mwandb[0m: Detected [huggingface_hub.inference, openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|▍                                                                                                                                                 | 3/1004 [05:53<32:51:00, 118.14s/it][libav.opus|ERROR]Error parsing Opus packet header.
+Unsloth: Will smartly offload gradients to save VRAM!
+{'loss': 3.2524, 'grad_norm': 1.252496600151062, 'learning_rate': 0.0, 'epoch': 0.0}
+{'loss': 3.1695, 'grad_norm': 1.211065411567688, 'learning_rate': 4e-05, 'epoch': 0.0}
+{'loss': 3.2162, 'grad_norm': 1.0580995082855225, 'learning_rate': 8e-05, 'epoch': 0.0}
+  3%|███▊                                                                                                                                           | 27/1004 [1:03:17<39:32:02, 145.67s/it]
+{'loss': 3.1425, 'grad_norm': 1.2718561887741089, 'learning_rate': 0.00012, 'epoch': 0.0}
+{'loss': 2.9719, 'grad_norm': 0.9695510864257812, 'learning_rate': 0.00016, 'epoch': 0.0}
+{'loss': 2.7662, 'grad_norm': 1.154831886291504, 'learning_rate': 0.0002, 'epoch': 0.01}
+{'loss': 2.5031, 'grad_norm': 1.1382741928100586, 'learning_rate': 0.0001997997997997998, 'epoch': 0.01}
+{'loss': 2.4933, 'grad_norm': 0.8734635710716248, 'learning_rate': 0.0001995995995995996, 'epoch': 0.01}
+{'loss': 2.3077, 'grad_norm': 0.909417450428009, 'learning_rate': 0.0001993993993993994, 'epoch': 0.01}
+{'loss': 2.2605, 'grad_norm': 0.8239486217498779, 'learning_rate': 0.0001991991991991992, 'epoch': 0.01}
+{'loss': 2.1877, 'grad_norm': 0.6804099678993225, 'learning_rate': 0.000198998998998999, 'epoch': 0.01}
+{'loss': 2.1323, 'grad_norm': 0.5053088068962097, 'learning_rate': 0.0001987987987987988, 'epoch': 0.01}
+{'loss': 2.0541, 'grad_norm': 0.5068394541740417, 'learning_rate': 0.0001985985985985986, 'epoch': 0.01}
+{'loss': 2.0958, 'grad_norm': 0.5071900486946106, 'learning_rate': 0.0001983983983983984, 'epoch': 0.01}
+{'loss': 1.9996, 'grad_norm': 0.42792949080467224, 'learning_rate': 0.0001981981981981982, 'epoch': 0.01}
+{'loss': 1.9464, 'grad_norm': 0.3945501744747162, 'learning_rate': 0.000197997997997998, 'epoch': 0.02}
+{'loss': 2.0271, 'grad_norm': 0.462422639131546, 'learning_rate': 0.0001977977977977978, 'epoch': 0.02}
+{'loss': 1.9419, 'grad_norm': 0.3935571014881134, 'learning_rate': 0.0001975975975975976, 'epoch': 0.02}
+{'loss': 1.819, 'grad_norm': 0.37387117743492126, 'learning_rate': 0.00019739739739739739, 'epoch': 0.02}
+{'loss': 1.8471, 'grad_norm': 0.3478115499019623, 'learning_rate': 0.0001971971971971972, 'epoch': 0.02}
+{'loss': 1.9577, 'grad_norm': 0.34472349286079407, 'learning_rate': 0.00019699699699699701, 'epoch': 0.02}
+{'loss': 1.75, 'grad_norm': 0.35350897908210754, 'learning_rate': 0.00019679679679679681, 'epoch': 0.02}
+{'loss': 1.8692, 'grad_norm': 0.4586605727672577, 'learning_rate': 0.00019659659659659661, 'epoch': 0.02}
+{'loss': 1.7194, 'grad_norm': 0.3659859299659729, 'learning_rate': 0.0001963963963963964, 'epoch': 0.02}
+{'loss': 1.7355, 'grad_norm': 0.4225082993507385, 'learning_rate': 0.00019619619619619621, 'epoch': 0.02}
+{'loss': 1.8321, 'grad_norm': 0.36834609508514404, 'learning_rate': 0.00019599599599599602, 'epoch': 0.03}
+{'loss': 1.7302, 'grad_norm': 0.38936546444892883, 'learning_rate': 0.00019579579579579582, 'epoch': 0.03}

@@ -1,0 +1,6 @@
+{"time":"2026-02-01T16:57:26.825200677+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.1"}
+{"time":"2026-02-01T16:57:27.885224002+08:00","level":"INFO","msg":"stream: created new stream","id":"tfousorz"}
+{"time":"2026-02-01T16:57:27.885356031+08:00","level":"INFO","msg":"handler: started","stream_id":"tfousorz"}
+{"time":"2026-02-01T16:57:27.88559673+08:00","level":"INFO","msg":"stream: started","id":"tfousorz"}
+{"time":"2026-02-01T16:57:27.885660629+08:00","level":"INFO","msg":"writer: started","stream_id":"tfousorz"}
+{"time":"2026-02-01T16:57:27.885692769+08:00","level":"INFO","msg":"sender: started","stream_id":"tfousorz"}

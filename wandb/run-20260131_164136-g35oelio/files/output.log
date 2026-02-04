@@ -1,0 +1,69 @@
+[34m[1mwandb[0m: Detected [huggingface_hub.inference, openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|                                                                                                                             | 0/790 [00:00<?, ?it/s]Traceback (most recent call last):
+  File "/home/liwt/IVCP/unsloth/model.py", line 63, in <module>
+    trainer.train()
+  File "/home/liwt/IVCP/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 272, in _fast_inner_training_loop
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/loss_utils.py", line 326, in _unsloth_get_batch_samples
+    batch_samples += [next(epoch_iterator)]
+                      ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/data_loader.py", line 579, in __iter__
+    next_batch = next(dataloader_iter)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 708, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 764, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 842, in __call__
+    batch = self.processor(**proc_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/models/qwen2_5_vl/processing_qwen2_5_vl.py", line 195, in __call__
+    self._check_special_mm_tokens(text, text_inputs, modalities=["image", "video"])
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/processing_utils.py", line 1772, in _check_special_mm_tokens
+    raise ValueError(
+ValueError: Mismatch in `video` token count between text and `input_ids`. Got ids=[10225, 550] and text=[23040, 550]. Likely due to `truncation='max_length'`. Please disable truncation or increase `max_length`.
+Traceback (most recent call last):
+  File "/home/liwt/IVCP/unsloth/model.py", line 63, in <module>
+    trainer.train()
+  File "/home/liwt/IVCP/unsloth_compiled_cache/UnslothSFTTrainer.py", line 55, in wrapper
+    output = f(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 272, in _fast_inner_training_loop
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/loss_utils.py", line 326, in _unsloth_get_batch_samples
+    batch_samples += [next(epoch_iterator)]
+                      ^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/accelerate/data_loader.py", line 579, in __iter__
+    next_batch = next(dataloader_iter)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 708, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 764, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/unsloth_zoo/vision_utils.py", line 842, in __call__
+    batch = self.processor(**proc_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/models/qwen2_5_vl/processing_qwen2_5_vl.py", line 195, in __call__
+    self._check_special_mm_tokens(text, text_inputs, modalities=["image", "video"])
+  File "/home/liwt/anaconda3/envs/unsloth_env/lib/python3.11/site-packages/transformers/processing_utils.py", line 1772, in _check_special_mm_tokens
+    raise ValueError(
+ValueError: Mismatch in `video` token count between text and `input_ids`. Got ids=[10225, 550] and text=[23040, 550]. Likely due to `truncation='max_length'`. Please disable truncation or increase `max_length`.

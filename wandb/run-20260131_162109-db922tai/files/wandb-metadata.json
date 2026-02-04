@@ -1,0 +1,13 @@
+{
+  "os": "Linux-5.4.0-150-generic-x86_64-with-glibc2.27",
+  "python": "CPython 3.11.14",
+  "startedAt": "2026-01-31T08:21:09.364776Z",
+  "program": "/home/liwt/IVCP/unsloth/model.py",
+  "codePath": "unsloth/model.py",
+  "codePathLocal": "unsloth/model.py",
+  "email": "llwwtt235@gmail.com",
+  "root": "/home/liwt/IVCP",
+  "host": "super-AS-4124GS-TNR",
+  "executable": "/home/liwt/anaconda3/envs/unsloth_env/bin/python",
+  "writerId": "d0jtu6u4nut5s5mx3pktzzgus1go5bll"
+}
