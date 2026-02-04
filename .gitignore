@@ -1,14 +1,14 @@
-.history
-.vscode
-data
+/.history
+/.vscode
+/data
 
 ## LLamaFactory directories
-LlamaFactory/data/mllm_demo_data/*
-LlamaFactory/data/VideoEspresso/*
+/LlamaFactory/data/mllm_demo_data/
+/LlamaFactory/data/VideoEspresso/
 
-model
-outputs
+/model
+/outputs
 
 ## Unsloth directories
-unsloth/outputs
-unsloth_compiled_cache
+/unsloth/outputs
+/unsloth_compiled_cache
