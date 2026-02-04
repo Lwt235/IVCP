@@ -3,8 +3,8 @@
 data
 
 ## LLamaFactory directories
-LlamaFactory/data/mllm_demo_data
-LlamaFactory/data/VideoEspresso
+LlamaFactory/data/mllm_demo_data/*
+LlamaFactory/data/VideoEspresso/*
 
 model
 outputs
