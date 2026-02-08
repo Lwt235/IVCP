@@ -80,10 +80,6 @@ class ActionClassificationTrainer(Trainer):
     def create_optimizer(self) -> "torch.optim.Optimizer":
         if self.optimizer is None:
             self.optimizer = create_custom_optimizer(self.model, self.args, self.finetuning_args)
-        if self.optimizer is None:
-            # Fall through to default optimizer creation which will include
-            # action decoder parameters via get_decay_parameter_names override.
-            pass
         return super().create_optimizer()
 
     @override
