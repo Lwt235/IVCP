@@ -5,9 +5,14 @@
 ## LLamaFactory directories
 /LlamaFactory/data/mllm_demo_data/
 /LlamaFactory/data/VideoEspresso/
+/LlamaFactory/outputs/
+/LlamaFactory/src/llamafactory/__pycache__
+/LlamaFactory/src/llamafactory/*/__pycache__
+/LlamaFactory/src/llamafactory/*/*/__pycache__
+/LlamaFactory/wandb/
+/LlamaFactory/llamaboard_cache/
 
 /model
-/outputs
 
 ## Unsloth directories
 /unsloth/outputs

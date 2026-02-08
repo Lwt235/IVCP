@@ -741,10 +741,26 @@
   },
   "VideoEspresso_stage1": {
     "file_name": "VideoEspresso_stage1.json",
+    "formatting": "sharegpt",
     "columns": {
-      "prompt": "question",
-      "response": "answer",
-      "videos": "video_path"
+      "messages": "conversations",
+      "videos": "videos"
+    }
+  },
+  "VideoEspresso_stage2": {
+    "file_name": "VideoEspresso_stage2.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations",
+      "videos": "videos"
+    }
+  },
+  "VideoEspresso_stage3": {
+    "file_name": "VideoEspresso_stage3.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations",
+      "videos": "videos"
     }
   }
 }
