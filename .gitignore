@@ -15,5 +15,6 @@
 /model
 
 ## Unsloth directories
-/unsloth/outputs
+# /unsloth/outputs
 /unsloth_compiled_cache
+/unsloth
