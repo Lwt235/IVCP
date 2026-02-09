@@ -23,8 +23,8 @@
 本系统通过引入新的 `action_cls` 训练阶段，实现了视频动作分类任务的端到端训练。主要组件包括：
 
 1. **Qwen2.5-VL-3B 主干网络**：使用 LoRA 进行参数高效微调
-2. **特殊 Token `<ACTION>`**：在输入序列中标记动作分类位置
-3. **ActionDecoder 解码器头**：轻量级分类器，将 `<ACTION>` token 的隐藏状态映射到动作类别
+2. **特殊 Token `<ACT>`**：在输入序列中标记动作分类位置
+3. **ActionDecoder 解码器头**：轻量级分类器，将 `<ACT>` token 的隐藏状态映射到动作类别
 4. **联合训练机制**：通过反向传播同时优化视觉-语言主干和分类头
 
 ### 工作流程
@@ -34,7 +34,7 @@
    ↓
 Qwen2.5-VL-3B (LoRA) - 视觉特征提取 + 多模态理解
    ↓
-<ACTION> token 隐藏状态
+<ACT> token 隐藏状态
    ↓
 ActionDecoder
    ↓
@@ -77,11 +77,11 @@ decoder.load_pretrained("/path/to/checkpoint")
 {
   "messages": [
     {
-      "content": "<video>What action is being performed in this video?<ACTION>",
+      "content": "<video>What action is being performed in this video?",
       "role": "user"
     },
     {
-      "content": "The person is performing a basketball dunk.",
+      "content": "The action being performed is <ACT>.",
       "role": "assistant"
     }
   ],
@@ -91,7 +91,7 @@ decoder.load_pretrained("/path/to/checkpoint")
 ```
 
 **关键要点**：
-- 必须在用户消息中包含 `<ACTION>` token
+- 必须在助手回复中包含 `<ACT>` token
 - `action_label` 字段必须是整数（类别索引，从0开始）
 - 所有 token 的标签都设为 `IGNORE_INDEX`，分类损失仅来自 ActionDecoder
 
@@ -109,7 +109,7 @@ def compute_loss(self, model, inputs):
     outputs = model(**inputs, output_hidden_states=True)
     last_hidden = outputs.hidden_states[-1]
     
-    # 3. 定位 <ACTION> token 位置并提取隐藏状态
+    # 3. 定位 <ACT> token 位置并提取隐藏状态
     action_hidden = self._get_action_hidden_states(
         inputs["input_ids"], last_hidden
     )
@@ -219,15 +219,17 @@ def prepare_ucf101_action_cls(
             # 构建完整路径
             full_path = os.path.join(video_root, video_path)
             
-            # 构造样本
+            # 构造样本 – 使用多样化模板，<ACT> 放在 assistant 回复中
+            from llamafactory.data.processor.action_templates import get_random_template
+            tpl = get_random_template()
             sample = {
                 "messages": [
                     {
-                        "content": "<video>Describe the action being performed in this video. <ACTION>",
+                        "content": tpl.user,
                         "role": "user"
                     },
                     {
-                        "content": f"The action in this video is {class_name.replace('_', ' ').lower()}.",
+                        "content": tpl.assistant,
                         "role": "assistant"
                     }
                 ],
@@ -354,15 +356,17 @@ def prepare_sthsthv2_action_cls(
         # 视频路径
         video_path = os.path.join(video_root, f"{video_id}.webm")
         
-        # 构造样本
+        # 构造样本 – 使用多样化模板，<ACT> 放在 assistant 回复中
+        from llamafactory.data.processor.action_templates import get_random_template
+        tpl = get_random_template()
         sample = {
             "messages": [
                 {
-                    "content": "<video>What is happening in this video? <ACTION>",
+                    "content": tpl.user,
                     "role": "user"
                 },
                 {
-                    "content": f"In this video, {template_filled.lower()}.",
+                    "content": tpl.assistant,
                     "role": "assistant"
                 }
             ],
@@ -467,7 +471,7 @@ num_action_classes: 101  # UCF101 有 101 个类别
 action_decoder_type: linear  # 可选: linear 或 mlp
 action_decoder_hidden_size: null  # mlp 模式下可设置，如 512
 action_decoder_path: null  # 如果有预训练的 decoder 可指定路径
-action_token_lr_scale: 0.1  # <ACTION> token embedding 的学习率缩放
+action_token_lr_scale: 0.1  # <ACT> token embedding 的学习率缩放
 
 ### 数据集配置
 dataset: ucf101_train  # 使用准备好的 UCF101 训练集
@@ -648,15 +652,15 @@ video_max_pixels: 8192
 gradient_checkpointing: true
 ```
 
-#### 2. <ACTION> token 未找到
+#### 2. <ACT> token 未找到
 
-**症状**：警告 `Sample X has no <ACTION> token`
+**症状**：警告 `Sample X has no <ACT> token`
 
-**原因**：输入数据中缺少 `<ACTION>` token
+**原因**：输入数据中缺少 `<ACT>` token
 
 **解决方案**：
-- 检查数据格式，确保用户消息中包含 `<ACTION>`
-- 示例：`"content": "<video>What action? <ACTION>"`
+- 检查数据格式，确保助手回复中包含 `<ACT>`
+- 示例：`"content": "The action is <ACT>."`
 
 #### 3. 损失不下降
 
