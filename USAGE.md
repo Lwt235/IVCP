@@ -12,7 +12,7 @@
 
 添加了完整的 LLaMA Factory 框架，这是一个功能强大的大语言模型微调工具，支持：
 
-- **多种模型**：支持 LLaMA、Qwen3-VL、Mistral、GLM 等 100+ 种大语言模型和多模态模型
+- **多种模型**: 支持 LLaMA、Qwen3-VL、Mistral、GLM 等 100+ 种大语言模型和多模态模型
 - **多种训练方法**：
   - 预训练（Pretraining）
   - 监督微调（SFT - Supervised Fine-Tuning）
@@ -252,7 +252,7 @@ llamafactory-cli api \
 
 ### 1. 分布式训练
 
-使用 DeepSpeed 进行多GPU训练：
+使用 DeepSpeed 进行多 GPU 训练：
 
 ```yaml
 deepspeed: examples/deepspeed/ds_z3_config.json
@@ -329,7 +329,7 @@ deepspeed: examples/deepspeed/ds_z3_offload_config.json
 1. 使用 FlashAttention-2：自动启用（如果环境支持）
 2. 使用更大的批次大小
 3. 使用混合精度训练（bf16 或 fp16）
-4. 多GPU分布式训练
+4. 多 GPU 分布式训练
 
 ### Q3: 训练好的模型在哪里？
 
