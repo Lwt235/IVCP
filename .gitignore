@@ -9,6 +9,9 @@
 /LlamaFactory/src/llamafactory/__pycache__
 /LlamaFactory/src/llamafactory/*/__pycache__
 /LlamaFactory/src/llamafactory/*/*/__pycache__
+/LlamaFactory/tests/__pycache__
+/LlamaFactory/tests/*/__pycache__
+/LlamaFactory/.pytest_cache
 /LlamaFactory/wandb/
 /LlamaFactory/llamaboard_cache/
 

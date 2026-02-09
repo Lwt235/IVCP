@@ -262,6 +262,19 @@ class SFTDataCollatorWith4DAttentionMask(MultiModalDataCollatorForSeq2Seq):
 
 
 @dataclass
+class ActionClsDataCollatorWith4DAttentionMask(SFTDataCollatorWith4DAttentionMask):
+    r"""Data collator for action classification that also collates ``action_labels``."""
+
+    def __call__(self, features: list[dict[str, Any]]) -> dict[str, "torch.Tensor"]:
+        # Pop scalar action_labels before the parent collator tries to pad them.
+        action_labels = [feature.pop("action_labels") for feature in features if "action_labels" in feature]
+        batch = super().__call__(features)
+        if action_labels:
+            batch["action_labels"] = torch.tensor(action_labels, dtype=torch.long)
+        return batch
+
+
+@dataclass
 class PairwiseDataCollatorWithPadding(MultiModalDataCollatorForSeq2Seq):
     r"""Data collator for pairwise data."""
 
