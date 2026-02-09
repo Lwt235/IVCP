@@ -462,7 +462,7 @@ class ActionClassificationArguments:
     )
     action_token_lr_scale: float = field(
         default=0.1,
-        metadata={"help": "Learning rate scale factor for the <ACTION> token embedding relative to the base LR."},
+        metadata={"help": "Learning rate scale factor for the {{action}} token embedding relative to the base LR."},
     )
 
 

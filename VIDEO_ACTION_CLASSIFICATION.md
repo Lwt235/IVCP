@@ -42,7 +42,7 @@ llamafactory-cli train examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml
 本实现基于 `copilot/migrate-video-action-classification` 分支的修改，主要特性包括：
 
 1. **ActionDecoder 分类头** - 轻量级分类器，支持 linear 和 mlp 两种架构
-2. **特殊 Token `<ACTION>`** - 标记动作分类位置
+2. **特殊 Token `{{action}}`** - 标记动作分类位置
 3. **联合训练** - 同时优化 Qwen2.5-VL-3B（LoRA）和 ActionDecoder
 4. **action_cls 训练阶段** - 新增的专门训练模式
 

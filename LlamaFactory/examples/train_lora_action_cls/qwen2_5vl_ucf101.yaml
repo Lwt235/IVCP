@@ -19,7 +19,7 @@ num_action_classes: 101  # UCF101 有 101 个类别
 action_decoder_type: linear  # 可选: linear 或 mlp
 action_decoder_hidden_size: null  # mlp 模式下可设置，如 512
 action_decoder_path: null  # 如果有预训练的 decoder 可指定路径
-action_token_lr_scale: 0.1  # <ACTION> token embedding 的学习率缩放
+action_token_lr_scale: 0.1  # {{action}} token embedding 的学习率缩放
 
 ### 数据集配置
 dataset: ucf101_train  # 使用准备好的 UCF101 训练集
