@@ -1,0 +1,63 @@
+### 模型配置
+model_name_or_path: /path/to/models/Qwen2.5-VL-3B-Instruct
+image_max_pixels: 262144
+video_max_pixels: 16384  # UCF101 视频较短，可以适当提高
+trust_remote_code: true
+
+### 训练方法
+stage: action_cls  # 关键：使用 action_cls 训练阶段
+do_train: true
+finetuning_type: lora
+lora_rank: 16
+lora_alpha: 32
+lora_target: all
+lora_dropout: 0.05
+use_dora: true  # 推荐：使用 DoRA 提升性能
+
+### 动作分类参数
+num_action_classes: 101  # UCF101 有 101 个类别
+action_decoder_type: linear  # 可选: linear 或 mlp
+action_decoder_hidden_size: null  # mlp 模式下可设置，如 512
+action_decoder_path: null  # 如果有预训练的 decoder 可指定路径
+action_token_lr_scale: 0.1  # <ACTION> token embedding 的学习率缩放
+
+### 数据集配置
+dataset: ucf101_train  # 使用准备好的 UCF101 训练集
+template: qwen2_vl
+cutoff_len: 2048
+max_samples: null  # 使用全部数据
+preprocessing_num_workers: 16
+dataloader_num_workers: 4
+
+### 输出配置
+output_dir: outputs/qwen2_5vl_action_cls_ucf101
+logging_steps: 10
+save_steps: 500
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: false
+save_only_model: false
+report_to: wandb  # 可选: none, wandb, tensorboard
+
+### 训练超参数
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4  # 有效 batch size = 4 * 4 = 16
+learning_rate: 5.0e-5  # 建议对动作分类使用较小的学习率
+num_train_epochs: 10
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+weight_decay: 0.01
+bf16: true
+ddp_timeout: 180000000
+
+### 优化器配置
+flash_attn: fa2  # 使用 FlashAttention-2 加速
+enable_liger_kernel: true  # 使用 Liger Kernel 优化
+
+### 评估配置（可选）
+# val_size: 0.1  # 从训练集中划分 10% 作为验证集
+# per_device_eval_batch_size: 4
+# eval_strategy: steps
+# eval_steps: 500
+# load_best_model_at_end: true
+# metric_for_best_model: eval_loss
