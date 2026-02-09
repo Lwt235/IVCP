@@ -133,7 +133,7 @@ def compute_loss(self, model, inputs):
 
 ```bash
 # 进入 LlamaFactory 目录
-cd /home/runner/work/IVCP/IVCP/LlamaFactory
+cd /path/to/IVCP/LlamaFactory
 
 # 安装 LLaMA Factory
 pip install -e ".[torch,metrics]"
@@ -256,7 +256,7 @@ if __name__ == "__main__":
 
 运行脚本：
 ```bash
-cd /home/runner/work/IVCP/IVCP
+cd /path/to/IVCP
 python scripts/prepare_ucf101.py
 ```
 
@@ -392,7 +392,7 @@ if __name__ == "__main__":
 
 运行脚本：
 ```bash
-cd /home/runner/work/IVCP/IVCP
+cd /path/to/IVCP
 python scripts/prepare_sthsthv2.py
 ```
 
@@ -576,7 +576,7 @@ enable_liger_kernel: true
 ### 1. 单 GPU 训练
 
 ```bash
-cd /home/runner/work/IVCP/IVCP/LlamaFactory
+cd /path/to/IVCP/LlamaFactory
 
 # UCF101 训练
 export CUDA_VISIBLE_DEVICES=0
@@ -589,7 +589,7 @@ llamafactory-cli train examples/train_lora/qwen2_5vl_action_cls_sthsthv2.yaml
 ### 2. 多 GPU 训练 (DDP)
 
 ```bash
-cd /home/runner/work/IVCP/IVCP/LlamaFactory
+cd /path/to/IVCP/LlamaFactory
 
 # 使用 torchrun 启动多 GPU 训练
 export CUDA_VISIBLE_DEVICES=0,1,2,3

@@ -161,7 +161,7 @@ use_dora: true                       # 使用 DoRA（推荐）
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 export WANDB_PROJECT=video-action-classification
 
-cd /home/runner/work/IVCP/IVCP/LlamaFactory
+cd /path/to/IVCP/LlamaFactory
 
 torchrun --nproc_per_node 4 --master_port 29500 \
     -m llamafactory.cli train \
