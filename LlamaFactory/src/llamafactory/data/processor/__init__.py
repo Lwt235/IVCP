@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .action_cls import ActionClassificationDatasetProcessor
 from .feedback import FeedbackDatasetProcessor
 from .pairwise import PairwiseDatasetProcessor
 from .pretrain import PretrainDatasetProcessor
@@ -22,7 +21,6 @@ from .unsupervised import UnsupervisedDatasetProcessor
 
 
 __all__ = [
-    "ActionClassificationDatasetProcessor",
     "DatasetProcessor",
     "FeedbackDatasetProcessor",
     "PackedSupervisedDatasetProcessor",

@@ -441,32 +441,6 @@ class SwanLabArguments:
 
 
 @dataclass
-class ActionClassificationArguments:
-    r"""Arguments pertaining to the action classification training stage."""
-
-    num_action_classes: int = field(
-        default=51,
-        metadata={"help": "Number of action classes (e.g. 51 for HMDB-51, 101 for UCF-101)."},
-    )
-    action_decoder_type: Literal["linear", "mlp"] = field(
-        default="linear",
-        metadata={"help": "Architecture of the action decoder head (linear or mlp)."},
-    )
-    action_decoder_hidden_size: int | None = field(
-        default=None,
-        metadata={"help": "Hidden size for the MLP action decoder. Defaults to model hidden size if None."},
-    )
-    action_decoder_path: str | None = field(
-        default=None,
-        metadata={"help": "Path to a pretrained action decoder checkpoint to resume from."},
-    )
-    action_token_lr_scale: float = field(
-        default=0.1,
-        metadata={"help": "Learning rate scale factor for the <ACTION> token embedding relative to the base LR."},
-    )
-
-
-@dataclass
 class FinetuningArguments(
     SwanLabArguments,
     BAdamArgument,
@@ -476,7 +450,6 @@ class FinetuningArguments(
     LoraArguments,
     OFTArguments,
     FreezeArguments,
-    ActionClassificationArguments,
 ):
     r"""Arguments pertaining to which techniques we are going to fine-tuning with."""
 
@@ -484,7 +457,7 @@ class FinetuningArguments(
         default=False,
         metadata={"help": "Whether or not to train model in purely bf16 precision (without AMP)."},
     )
-    stage: Literal["pt", "sft", "rm", "ppo", "dpo", "kto", "action_cls"] = field(
+    stage: Literal["pt", "sft", "rm", "ppo", "dpo", "kto"] = field(
         default="sft",
         metadata={"help": "Which stage will be performed in training."},
     )
