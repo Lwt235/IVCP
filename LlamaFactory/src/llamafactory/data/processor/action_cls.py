@@ -25,7 +25,7 @@ processor, but:
   they do **not** contribute to any language-modelling loss.
 * The integer ``action_label`` is stored in the output batch and later used by
   the ``ActionClassificationTrainer`` to compute the cross-entropy loss on the
-  ``<ACTION>`` hidden state.
+  ``<ACT>`` hidden state.
 """
 
 from collections import defaultdict
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 
 logger = logging.get_logger(__name__)
 
-ACTION_TOKEN = "<ACTION>"
+ACTION_TOKEN = "<ACT>"
 
 
 @dataclass
@@ -53,7 +53,7 @@ class ActionClassificationDatasetProcessor(DatasetProcessor):
     The final ``input_ids`` follows the same layout as supervised training (the
     prompt encourages reasoning) but **all** label positions are set to
     ``IGNORE_INDEX`` because the classification loss is computed separately from
-    the ``<ACTION>`` hidden state.
+    the ``<ACT>`` hidden state.
     """
 
     def _encode_data_example(
@@ -87,7 +87,7 @@ class ActionClassificationDatasetProcessor(DatasetProcessor):
             total_length += source_len + target_len
 
             input_ids += source_ids + target_ids
-            # All tokens are masked – classification loss comes from <ACTION> head.
+            # All tokens are masked – classification loss comes from <ACT> head.
             labels += [IGNORE_INDEX] * (source_len + target_len)
 
         if self.template.efficient_eos:
