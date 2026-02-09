@@ -18,7 +18,7 @@ def merge_cot_data(input_dir):
 
 def change_format(input_dir):
     for filename in tqdm(os.listdir(input_dir)):
-        if filename.endswith('.json') and 'VideoEspresso' in filename and 'copy' not in filename:
+        if filename.endswith('.json') and 'VideoEspresso' in filename:
             file_path = os.path.join(input_dir, filename)
             with open(file_path, 'r', encoding='utf-8') as infile:
                 data = json.load(infile)
