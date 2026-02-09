@@ -15,7 +15,7 @@
 r"""Trainer for the ``action_cls`` training stage.
 
 This trainer runs the full VLM forward pass with ``output_hidden_states=True``,
-locates the ``<ACTION>`` special token in each sequence, extracts the
+locates the ``<action>`` special token in each sequence, extracts the
 corresponding last-layer hidden state, and feeds it through a lightweight
 ``ActionDecoder`` head.  The classification loss (cross-entropy over action
 classes) is back-propagated through the LoRA parameters of the backbone so that
@@ -50,7 +50,7 @@ class ActionClassificationTrainer(Trainer):
     During ``compute_loss`` it:
 
     1. Runs the backbone with ``output_hidden_states=True``.
-    2. Extracts the hidden state at the ``<ACTION>`` position.
+    2. Extracts the hidden state at the ``<action>`` position.
     3. Passes it through the ``ActionDecoder`` to obtain logits.
     4. Returns the cross-entropy loss over the action labels.
     """
@@ -94,7 +94,7 @@ class ActionClassificationTrainer(Trainer):
         input_ids: torch.Tensor,
         hidden_states: torch.Tensor,
     ) -> torch.Tensor:
-        r"""Extract the hidden state at the ``<ACTION>`` token position for each sample.
+        r"""Extract the hidden state at the ``<action>`` token position for each sample.
 
         Args:
             input_ids: ``(batch_size, seq_len)``
@@ -110,11 +110,11 @@ class ActionClassificationTrainer(Trainer):
         for i in range(batch_size):
             positions = action_mask[i].nonzero(as_tuple=False)
             if positions.numel() > 0:
-                # Use the last <ACTION> occurrence if multiple exist.
+                # Use the last <action> occurrence if multiple exist.
                 pos = positions[-1].item()
                 result[i] = hidden_states[i, pos]
             else:
-                logger.warning_rank0(f"Sample {i} has no <ACTION> token; using zero vector.")
+                logger.warning_rank0(f"Sample {i} has no <action> token; using zero vector.")
         return result
 
     @override

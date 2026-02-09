@@ -28,7 +28,7 @@ ACTION_DECODER_WEIGHTS_NAME = "action_decoder.safetensors"
 
 
 class ActionDecoder(nn.Module):
-    r"""A lightweight decoder head that maps the <ACTION> token hidden state to action class logits.
+    r"""A lightweight decoder head that maps the <action> token hidden state to action class logits.
 
     Supports both a single linear layer and a two-layer MLP with GELU activation.
     """

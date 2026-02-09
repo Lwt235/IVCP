@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
-ACTION_TOKEN = "<ACTION>"
+ACTION_TOKEN = "<action>"
 
 
 def run_action_cls(
@@ -53,7 +53,7 @@ def run_action_cls(
     tokenizer_module = load_tokenizer(model_args)
     tokenizer = tokenizer_module["tokenizer"]
 
-    # Register the <ACTION> special token if not already present.
+    # Register the <action> special token if not already present.
     if ACTION_TOKEN not in tokenizer.get_vocab():
         tokenizer.add_special_tokens({"additional_special_tokens": [ACTION_TOKEN]})
         logger.info_rank0(f"Added special token {ACTION_TOKEN} to tokenizer (id={tokenizer.convert_tokens_to_ids(ACTION_TOKEN)}).")
@@ -73,7 +73,7 @@ def run_action_cls(
     if getattr(model, "is_quantized", False) and not training_args.do_train:
         setattr(model, "_hf_peft_config_loaded", True)
 
-    # Resize embeddings to accommodate <ACTION> token.
+    # Resize embeddings to accommodate <action> token.
     model.resize_token_embeddings(len(tokenizer))
 
     # ---- action decoder ------------------------------------------------------

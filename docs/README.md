@@ -17,7 +17,7 @@
    - 轻量级设计，易于训练和部署
    - 支持保存和加载预训练权重
 
-2. **特殊 Token `<ACTION>`**
+2. **特殊 Token `<action>`**
    - 在输入序列中标记动作分类位置
    - 系统自动提取该 token 的隐藏状态用于分类
 
@@ -97,7 +97,7 @@ torchrun --nproc_per_node 4 --master_port 29500 \
 {
   "messages": [
     {
-      "content": "<video>Describe the action. <ACTION>",
+      "content": "<video>Describe the action. <action>",
       "role": "user"
     },
     {
@@ -111,7 +111,7 @@ torchrun --nproc_per_node 4 --master_port 29500 \
 ```
 
 **关键要点**：
-- 用户消息必须包含 `<ACTION>` token
+- 用户消息必须包含 `<action>` token
 - `action_label` 必须是整数（从 0 开始）
 - `videos` 包含视频文件的路径
 
@@ -130,7 +130,7 @@ num_action_classes: 101              # 动作类别总数
 action_decoder_type: linear          # decoder 类型: linear 或 mlp
 action_decoder_hidden_size: null     # mlp 模式下的隐藏层维度
 action_decoder_path: null            # 预训练 decoder 路径（可选）
-action_token_lr_scale: 0.1           # <ACTION> token 学习率缩放因子
+action_token_lr_scale: 0.1           # <action> token 学习率缩放因子
 ```
 
 ### LoRA 参数
@@ -173,7 +173,7 @@ torchrun --nproc_per_node 4 --master_port 29500 \
 常见问题及解决方案：
 
 1. **显存不足**：减小 `per_device_train_batch_size` 和 `video_max_pixels`
-2. **<ACTION> token 未找到**：检查数据格式，确保包含 `<ACTION>` token
+2. **<action> token 未找到**：检查数据格式，确保包含 `<action>` token
 3. **损失不下降**：调整学习率，检查标签范围
 4. **数据加载慢**：增加 `preprocessing_num_workers` 和 `dataloader_num_workers`
 
