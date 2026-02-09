@@ -30,11 +30,15 @@
 ### 工作流程
 
 ```
-视频输入 → Qwen2.5-VL-3B (LoRA) → <ACTION> token 隐藏状态 → ActionDecoder → 动作类别预测
-          ↓                                                    ↓
-    视觉特征提取                                        交叉熵损失
-          ↓                                                    ↓
-    多模态理解                                            反向传播更新
+视频输入 
+   ↓
+Qwen2.5-VL-3B (LoRA) - 视觉特征提取 + 多模态理解
+   ↓
+<ACTION> token 隐藏状态
+   ↓
+ActionDecoder
+   ↓
+动作类别预测 → 交叉熵损失 → 反向传播更新（LoRA + Decoder）
 ```
 
 ---
@@ -439,7 +443,7 @@ python scripts/prepare_sthsthv2.py
 
 ### 1. UCF101 训练配置
 
-创建 `LlamaFactory/examples/train_lora/qwen2_5vl_action_cls_ucf101.yaml`：
+创建 `LlamaFactory/examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml`：
 
 ```yaml
 ### 模型配置
@@ -509,7 +513,7 @@ enable_liger_kernel: true  # 使用 Liger Kernel 优化
 
 ### 2. Something-Something V2 训练配置
 
-创建 `LlamaFactory/examples/train_lora/qwen2_5vl_action_cls_sthsthv2.yaml`：
+创建 `LlamaFactory/examples/train_lora_action_cls/qwen2_5vl_sthsthv2.yaml`：
 
 ```yaml
 ### 模型配置
@@ -580,10 +584,10 @@ cd /path/to/IVCP/LlamaFactory
 
 # UCF101 训练
 export CUDA_VISIBLE_DEVICES=0
-llamafactory-cli train examples/train_lora/qwen2_5vl_action_cls_ucf101.yaml
+llamafactory-cli train examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml
 
 # Something-Something V2 训练
-llamafactory-cli train examples/train_lora/qwen2_5vl_action_cls_sthsthv2.yaml
+llamafactory-cli train examples/train_lora_action_cls/qwen2_5vl_sthsthv2.yaml
 ```
 
 ### 2. 多 GPU 训练 (DDP)
@@ -595,14 +599,14 @@ cd /path/to/IVCP/LlamaFactory
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 torchrun --nproc_per_node 4 --master_port 29500 \
     -m llamafactory.cli train \
-    examples/train_lora/qwen2_5vl_action_cls_ucf101.yaml
+    examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml
 ```
 
 ### 3. 断点续训
 
 ```bash
 # 在配置文件中指定 checkpoint 路径
-llamafactory-cli train examples/train_lora/qwen2_5vl_action_cls_ucf101.yaml \
+llamafactory-cli train examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml \
     --resume_from_checkpoint outputs/qwen2_5vl_action_cls_ucf101/checkpoint-1000
 ```
 
