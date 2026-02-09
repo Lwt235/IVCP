@@ -136,3 +136,46 @@ class TestActionClsCollator:
         assert result.shape == (2,)
         assert result[0].item() == 5
         assert result[1].item() == 10
+
+
+# ---------------------------------------------------------------------------
+# ActionCLS conversation templates tests
+# ---------------------------------------------------------------------------
+
+
+class TestActionClsTemplates:
+    def test_templates_not_empty(self):
+        from llamafactory.data.processor.action_templates import ACTION_CLS_TEMPLATES
+
+        assert len(ACTION_CLS_TEMPLATES) > 1
+
+    def test_act_token_in_assistant(self):
+        """Every template must have <ACT> in the assistant response, not in the user prompt."""
+        from llamafactory.data.processor.action_templates import ACTION_CLS_TEMPLATES
+
+        for tpl in ACTION_CLS_TEMPLATES:
+            assert "<ACT>" in tpl.assistant, f"Missing <ACT> in assistant: {tpl.assistant}"
+            assert "<ACT>" not in tpl.user, f"<ACT> should not be in user: {tpl.user}"
+
+    def test_video_tag_in_user(self):
+        """Every user prompt must contain <video>."""
+        from llamafactory.data.processor.action_templates import ACTION_CLS_TEMPLATES
+
+        for tpl in ACTION_CLS_TEMPLATES:
+            assert "<video>" in tpl.user, f"Missing <video> in user: {tpl.user}"
+
+    def test_get_random_template(self):
+        import random
+
+        from llamafactory.data.processor.action_templates import ACTION_CLS_TEMPLATES, get_random_template
+
+        rng = random.Random(42)
+        tpl = get_random_template(rng)
+        assert tpl in ACTION_CLS_TEMPLATES
+
+    def test_templates_are_diverse(self):
+        """Templates should have distinct user prompts."""
+        from llamafactory.data.processor.action_templates import ACTION_CLS_TEMPLATES
+
+        user_prompts = [tpl.user for tpl in ACTION_CLS_TEMPLATES]
+        assert len(set(user_prompts)) == len(user_prompts), "Duplicate user prompts found"
