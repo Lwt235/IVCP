@@ -22,10 +22,12 @@ classes) is back-propagated through the LoRA parameters of the backbone so that
 the reasoning-aware hidden representation is leveraged for action recognition.
 """
 
+import json
 import os
 from types import MethodType
 from typing import TYPE_CHECKING, Any, Optional, Union
 
+import numpy as np
 import torch
 import torch.nn as nn
 from transformers import Trainer
@@ -39,6 +41,7 @@ from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
 
 if TYPE_CHECKING:
     from transformers import ProcessorMixin
+    from transformers.trainer_utils import PredictionOutput
 
     from ...hparams import FinetuningArguments, ModelArguments, TrainingArguments
 
@@ -192,3 +195,39 @@ class ActionClassificationTrainer(Trainer):
         r"""Save the action decoder weights alongside the main checkpoint."""
         save_dir = output_dir or self.args.output_dir
         self.action_decoder.save_pretrained(save_dir)
+
+    def save_predictions(self, predict_results: "PredictionOutput") -> None:
+        r"""Save prediction results to ``generated_predictions.jsonl``.
+
+        Each line contains the predicted class, confidence score, and true label.
+        """
+        if not self.is_world_process_zero():
+            return
+
+        output_prediction_file = os.path.join(self.args.output_dir, "generated_predictions.jsonl")
+        logger.info_rank0(f"Saving prediction results to {output_prediction_file}")
+
+        logits = predict_results.predictions
+        labels = predict_results.label_ids
+
+        if isinstance(logits, tuple):
+            logits = logits[0]
+
+        logits = np.asarray(logits)
+        labels = np.asarray(labels)
+
+        preds = np.argmax(logits, axis=-1)
+        # Compute softmax probabilities for confidence scores.
+        exp_logits = np.exp(logits - np.max(logits, axis=-1, keepdims=True))
+        probs = exp_logits / np.sum(exp_logits, axis=-1, keepdims=True)
+        confidences = np.max(probs, axis=-1)
+
+        with open(output_prediction_file, "w", encoding="utf-8") as writer:
+            for i, (pred, conf, label) in enumerate(zip(preds, confidences, labels)):
+                if i > 0:
+                    writer.write("\n")
+                writer.write(json.dumps({
+                    "label": int(label),
+                    "predict": int(pred),
+                    "confidence": round(float(conf), 4),
+                }))

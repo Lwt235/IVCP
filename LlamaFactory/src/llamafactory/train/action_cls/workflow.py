@@ -112,12 +112,12 @@ def run_action_cls(
         finetuning_args=finetuning_args,
         data_collator=data_collator,
         callbacks=callbacks,
-        compute_metrics=ComputeActionAccuracy() if training_args.do_eval else None,
+        compute_metrics=ComputeActionAccuracy() if training_args.do_eval or training_args.do_predict else None,
         **dataset_module,
         **tokenizer_module,
     )
 
-    # ---- train / eval --------------------------------------------------------
+    # ---- train / eval / predict ----------------------------------------------
     if training_args.do_train:
         train_result = trainer.train(resume_from_checkpoint=training_args.resume_from_checkpoint)
         trainer.save_model()
@@ -133,6 +133,12 @@ def run_action_cls(
         metrics = trainer.evaluate(metric_key_prefix="eval")
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
+
+    if training_args.do_predict:
+        predict_results = trainer.predict(dataset_module["eval_dataset"], metric_key_prefix="predict")
+        trainer.log_metrics("predict", predict_results.metrics)
+        trainer.save_metrics("predict", predict_results.metrics)
+        trainer.save_predictions(predict_results)
 
     # ---- model card ----------------------------------------------------------
     create_modelcard_and_push(trainer, model_args, data_args, training_args, finetuning_args)

@@ -381,3 +381,109 @@ class TestComputeActionAccuracy:
         # After dump, internal lists should be empty
         assert len(metric.top1) == 0
         assert len(metric.top5) == 0
+
+
+# ---------------------------------------------------------------------------
+# ActionClassificationTrainer.save_predictions tests
+# ---------------------------------------------------------------------------
+
+
+class TestSavePredictions:
+    def _make_trainer_stub(self, output_dir):
+        """Create a minimal trainer-like object with save_predictions."""
+        import types
+
+        from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
+
+        trainer = object.__new__(ActionClassificationTrainer)
+        trainer.args = types.SimpleNamespace(output_dir=output_dir, process_index=0)
+        return trainer
+
+    def test_save_predictions_creates_file(self):
+        """save_predictions must create generated_predictions.jsonl."""
+        import json
+        import tempfile
+        from collections import namedtuple
+
+        PredictionOutput = namedtuple("PredictionOutput", ["predictions", "label_ids", "metrics"])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            trainer = self._make_trainer_stub(tmpdir)
+            logits = np.array([
+                [10.0, 0.0, 0.0],
+                [0.0, 10.0, 0.0],
+                [0.0, 0.0, 10.0],
+            ])
+            labels = np.array([0, 1, 2])
+            predict_results = PredictionOutput(predictions=logits, label_ids=labels, metrics={})
+            trainer.save_predictions(predict_results)
+
+            output_file = os.path.join(tmpdir, "generated_predictions.jsonl")
+            assert os.path.isfile(output_file)
+
+            with open(output_file, "r", encoding="utf-8") as f:
+                lines = f.read().strip().split("\n")
+
+            assert len(lines) == 3
+            for line in lines:
+                record = json.loads(line)
+                assert "label" in record
+                assert "predict" in record
+                assert "confidence" in record
+
+    def test_save_predictions_correct_values(self):
+        """Predicted class and label should match expected values."""
+        import json
+        import tempfile
+        from collections import namedtuple
+
+        PredictionOutput = namedtuple("PredictionOutput", ["predictions", "label_ids", "metrics"])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            trainer = self._make_trainer_stub(tmpdir)
+            logits = np.array([
+                [10.0, 0.0, 0.0],  # pred=0
+                [0.0, 0.0, 10.0],  # pred=2
+            ])
+            labels = np.array([0, 1])
+            predict_results = PredictionOutput(predictions=logits, label_ids=labels, metrics={})
+            trainer.save_predictions(predict_results)
+
+            output_file = os.path.join(tmpdir, "generated_predictions.jsonl")
+            with open(output_file, "r", encoding="utf-8") as f:
+                lines = f.read().strip().split("\n")
+
+            r0 = json.loads(lines[0])
+            assert r0["label"] == 0
+            assert r0["predict"] == 0
+            assert r0["confidence"] > 0.9
+
+            r1 = json.loads(lines[1])
+            assert r1["label"] == 1
+            assert r1["predict"] == 2
+            assert r1["confidence"] > 0.9
+
+    def test_save_predictions_handles_tuple_logits(self):
+        """save_predictions should handle logits wrapped in a tuple."""
+        import json
+        import tempfile
+        from collections import namedtuple
+
+        PredictionOutput = namedtuple("PredictionOutput", ["predictions", "label_ids", "metrics"])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            trainer = self._make_trainer_stub(tmpdir)
+            logits = (np.array([[10.0, 0.0], [0.0, 10.0]]),)
+            labels = np.array([0, 1])
+            predict_results = PredictionOutput(predictions=logits, label_ids=labels, metrics={})
+            trainer.save_predictions(predict_results)
+
+            output_file = os.path.join(tmpdir, "generated_predictions.jsonl")
+            with open(output_file, "r", encoding="utf-8") as f:
+                lines = f.read().strip().split("\n")
+
+            assert len(lines) == 2
+            r0 = json.loads(lines[0])
+            assert r0["predict"] == 0
+            r1 = json.loads(lines[1])
+            assert r1["predict"] == 1
