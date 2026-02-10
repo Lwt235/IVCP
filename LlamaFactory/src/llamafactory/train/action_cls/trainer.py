@@ -168,7 +168,12 @@ class ActionClassificationTrainer(Trainer):
         prediction_loss_only: bool,
         ignore_keys: Optional[list[str]] = None,
     ) -> tuple[Optional["torch.Tensor"], Optional["torch.Tensor"], Optional["torch.Tensor"]]:
-        r"""Run evaluation forward pass with proper ``action_labels`` handling."""
+        r"""Run evaluation forward pass with proper ``action_labels`` handling.
+
+        Returns ``(loss, logits, labels)`` where *labels* is always ``None``
+        because classification targets are consumed internally by the loss
+        computation and are not needed downstream by the evaluation loop.
+        """
         inputs = self._prepare_inputs(inputs)
         with torch.no_grad():
             loss, logits = self._action_cls_forward(model, inputs)
