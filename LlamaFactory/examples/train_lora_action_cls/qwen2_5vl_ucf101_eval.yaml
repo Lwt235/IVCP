@@ -1,6 +1,6 @@
 ### 模型配置
-model_name_or_path: /home/liwt/IVCP/LlamaFactory/outputs/qwen2_5_vl_sft_stage3_merged
-adapter_name_or_path: outputs/qwen2_5vl_action_cls_ucf101  # 训练好的 LoRA 权重路径
+model_name_or_path: /home/liwt/IVCP/LlamaFactory/outputs/qwen2_5_vl_sft_stage3_merged  # 修改为实际的模型路径
+adapter_name_or_path: outputs/qwen2_5vl_action_cls_ucf101  # 修改为训练好的 LoRA 权重路径
 image_max_pixels: 262144
 video_max_pixels: 16384
 trust_remote_code: true
