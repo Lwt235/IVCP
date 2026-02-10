@@ -16,8 +16,11 @@ use_dora: true  # 推荐：使用 DoRA 提升性能
 
 ### 动作分类参数
 num_action_classes: 101  # UCF101 有 101 个类别
-action_decoder_type: mlp  # 可选: linear 或 mlp
-action_decoder_hidden_size: 512  # mlp 模式下可设置，如 512
+action_decoder_type: transformer  # 可选: linear 或 mlp
+action_decoder_hidden_size: 768
+action_decoder_num_transformer_layers: 2  # Transformer 层数
+action_decoder_num_heads: 8 # Transformer 注意力头数
+action_decoder_dropout: 0.1 # Dropout 比率
 action_decoder_path: null  # 如果有预训练的 decoder 可指定路径
 action_token_lr_scale: 0.1  # <ACT> token embedding 的学习率缩放
 
@@ -30,7 +33,7 @@ preprocessing_num_workers: 16
 dataloader_num_workers: 4
 
 ### 输出配置
-output_dir: outputs/qwen2_5vl_action_cls_ucf101
+output_dir: outputs/qwen2_5vl_action_cls_ucf101_tr
 logging_steps: 10
 save_steps: 500
 save_total_limit: 3

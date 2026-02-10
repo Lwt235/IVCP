@@ -162,9 +162,15 @@ class ActionClassificationTrainer(Trainer):
         # Check if this is a Qwen2-VL type model
         visual_module = getattr(actual_model, "visual", None)
         if visual_module is None:
+            # logger.warning_rank0(f"actual_model: {actual_model}")
             # Try to access through model attribute (transformers >= 4.52.0)
             if hasattr(actual_model, "model") and hasattr(actual_model.model, "visual"):
                 visual_module = actual_model.model.visual
+
+        if visual_module is None:
+            # Try to access through model.model attribute
+            if hasattr(actual_model, "model") and hasattr(actual_model.model, "model") and hasattr(actual_model.model.model, "visual"):
+                visual_module = actual_model.model.model.visual
 
         if visual_module is None:
             logger.warning_rank0("Could not find visual module in model. Visual tokens not available.")
