@@ -106,7 +106,12 @@ class ActionClassificationDatasetProcessor(DatasetProcessor):
                 continue
 
             # Retrieve the integer action label from the dataset.
-            action_label = examples.get("action_label", [None])[i]
+            action_label_list = examples.get("action_label")
+            if action_label_list is None or i >= len(action_label_list):
+                action_label = None
+            else:
+                action_label = action_label_list[i]
+
             if action_label is None:
                 logger.warning_rank0(f"Dropped example {i}: missing 'action_label'.")
                 logger.warning_rank0(f"Example data: {examples}")
