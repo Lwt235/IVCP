@@ -127,8 +127,12 @@ class ActionClassificationTrainer(Trainer):
                 logger.warning_rank0(f"Sample {i} has no <ACT> token; using zero vector.")
         return result
 
-    @override
-    def compute_loss(self, model, inputs, *args, **kwargs):
+    def _action_cls_forward(self, model, inputs):
+        r"""Shared forward logic for both training and evaluation.
+
+        Pops ``action_labels`` / ``labels`` from *inputs*, runs the backbone
+        with ``output_hidden_states=True``, and returns ``(loss, logits)``.
+        """
         # Pop action_labels so that the model forward does not receive them.
         action_labels = inputs.pop("action_labels")  # (B,)
         # We do not need language-modelling labels for this stage.
@@ -149,7 +153,30 @@ class ActionClassificationTrainer(Trainer):
         action_labels = action_labels.to(device=logits.device)
         loss = self.ce_loss(logits, action_labels)
 
+        return loss, logits
+
+    @override
+    def compute_loss(self, model, inputs, *args, **kwargs):
+        loss, _ = self._action_cls_forward(model, inputs)
         return loss
+
+    @override
+    def prediction_step(
+        self,
+        model: "torch.nn.Module",
+        inputs: dict[str, Union["torch.Tensor", Any]],
+        prediction_loss_only: bool,
+        ignore_keys: Optional[list[str]] = None,
+    ) -> tuple[Optional["torch.Tensor"], Optional["torch.Tensor"], Optional["torch.Tensor"]]:
+        r"""Run evaluation forward pass with proper ``action_labels`` handling."""
+        inputs = self._prepare_inputs(inputs)
+        with torch.no_grad():
+            loss, logits = self._action_cls_forward(model, inputs)
+
+        if prediction_loss_only:
+            return loss.detach(), None, None
+
+        return loss.detach(), logits.detach(), None
 
     @override
     def _get_train_sampler(self, *args, **kwargs) -> Optional["torch.utils.data.Sampler"]:
