@@ -1,5 +1,5 @@
 ### 模型配置
-model_name_or_path: /path/to/models/Qwen2.5-VL-3B-Instruct
+model_name_or_path: /home/liwt/IVCP/LlamaFactory/outputs/qwen2_5_vl_sft_stage3_merged
 image_max_pixels: 262144
 video_max_pixels: 16384  # UCF101 视频较短，可以适当提高
 trust_remote_code: true
@@ -16,8 +16,8 @@ use_dora: true  # 推荐：使用 DoRA 提升性能
 
 ### 动作分类参数
 num_action_classes: 101  # UCF101 有 101 个类别
-action_decoder_type: linear  # 可选: linear 或 mlp
-action_decoder_hidden_size: null  # mlp 模式下可设置，如 512
+action_decoder_type: mlp  # 可选: linear 或 mlp
+action_decoder_hidden_size: 512  # mlp 模式下可设置，如 512
 action_decoder_path: null  # 如果有预训练的 decoder 可指定路径
 action_token_lr_scale: 0.1  # <ACT> token embedding 的学习率缩放
 
@@ -56,8 +56,9 @@ enable_liger_kernel: true  # 使用 Liger Kernel 优化
 
 ### 评估配置（可选）
 # val_size: 0.1  # 从训练集中划分 10% 作为验证集
-# per_device_eval_batch_size: 4
-# eval_strategy: steps
-# eval_steps: 500
-# load_best_model_at_end: true
-# metric_for_best_model: eval_loss
+eval_dataset: ucf101_test  # 使用准备好的 UCF101 验证集
+per_device_eval_batch_size: 4
+eval_strategy: steps
+eval_steps: 500
+load_best_model_at_end: true
+metric_for_best_model: eval_loss

@@ -109,6 +109,7 @@ class ActionClassificationDatasetProcessor(DatasetProcessor):
             action_label = examples.get("action_label", [None])[i]
             if action_label is None:
                 logger.warning_rank0(f"Dropped example {i}: missing 'action_label'.")
+                logger.warning_rank0(f"Example data: {examples}")
                 continue
 
             input_ids, labels = self._encode_data_example(

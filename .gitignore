@@ -3,17 +3,19 @@
 /data
 
 ## LLamaFactory directories
-/LlamaFactory/data/mllm_demo_data/
-/LlamaFactory/data/VideoEspresso/
-/LlamaFactory/outputs/
+/LlamaFactory/data/mllm_demo_data
+/LlamaFactory/data/VideoEspresso
+/LlamaFactory/data/something-something-v2
+/LlamaFactory/data/UCF101
+/LlamaFactory/outputs
 /LlamaFactory/src/llamafactory/__pycache__
 /LlamaFactory/src/llamafactory/*/__pycache__
 /LlamaFactory/src/llamafactory/*/*/__pycache__
 /LlamaFactory/tests/__pycache__
 /LlamaFactory/tests/*/__pycache__
 /LlamaFactory/.pytest_cache
-/LlamaFactory/wandb/
-/LlamaFactory/llamaboard_cache/
+/LlamaFactory/wandb
+/LlamaFactory/llamaboard_cache
 
 /model
 
