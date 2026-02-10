@@ -139,6 +139,96 @@ class TestActionClsCollator:
 
 
 # ---------------------------------------------------------------------------
+# ActionClassificationTrainer._action_cls_forward tests
+# ---------------------------------------------------------------------------
+
+
+class TestActionClsForward:
+    """Verify that _action_cls_forward returns (loss, logits) and that
+    prediction_step does not crash during evaluation."""
+
+    def _make_dummy_model(self, hidden_size):
+        """Return a tiny model-like callable that mimics VLM output."""
+
+        class _FakeOutput:
+            def __init__(self, hidden_states):
+                self.hidden_states = hidden_states
+
+        class _FakeModel:
+            def __call__(self, **kwargs):
+                bs = kwargs["input_ids"].size(0)
+                sl = kwargs["input_ids"].size(1)
+                hs = torch.randn(bs, sl, hidden_size)
+                return _FakeOutput(hidden_states=(hs,))
+
+        return _FakeModel()
+
+    def test_action_cls_forward_returns_tuple(self):
+        """_action_cls_forward must return (loss, logits)."""
+        from llamafactory.model.action_decoder import ActionDecoder
+        from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
+
+        hidden_size = 32
+        num_classes = 5
+        action_token_id = 99
+        batch_size = 2
+        seq_len = 4
+
+        decoder = ActionDecoder(hidden_size=hidden_size, num_classes=num_classes)
+        # Build a minimal trainer-like object to test _action_cls_forward
+        trainer = object.__new__(ActionClassificationTrainer)
+        trainer.action_decoder = decoder
+        trainer.action_token_id = action_token_id
+        trainer.ce_loss = torch.nn.CrossEntropyLoss()
+
+        # Inputs with <ACT> token at position 2
+        input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
+        inputs = {
+            "input_ids": input_ids,
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": torch.full_like(input_ids, -100),
+            "action_labels": torch.tensor([0, 3]),
+        }
+
+        model = self._make_dummy_model(hidden_size)
+        loss, logits = trainer._action_cls_forward(model, inputs)
+
+        assert isinstance(loss, torch.Tensor)
+        assert loss.dim() == 0  # scalar
+        assert logits.shape == (batch_size, num_classes)
+
+    def test_compute_loss_returns_scalar(self):
+        """compute_loss must return only the loss tensor (not a tuple)."""
+        from llamafactory.model.action_decoder import ActionDecoder
+        from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
+
+        hidden_size = 32
+        num_classes = 5
+        action_token_id = 99
+        batch_size = 2
+
+        decoder = ActionDecoder(hidden_size=hidden_size, num_classes=num_classes)
+        trainer = object.__new__(ActionClassificationTrainer)
+        trainer.action_decoder = decoder
+        trainer.action_token_id = action_token_id
+        trainer.ce_loss = torch.nn.CrossEntropyLoss()
+
+        input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
+        inputs = {
+            "input_ids": input_ids,
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": torch.full_like(input_ids, -100),
+            "action_labels": torch.tensor([0, 3]),
+        }
+
+        model = self._make_dummy_model(hidden_size)
+        result = trainer.compute_loss(model, inputs)
+
+        assert isinstance(result, torch.Tensor)
+        assert result.dim() == 0
+
+
+# ---------------------------------------------------------------------------
 # ActionCLS conversation templates tests
 # ---------------------------------------------------------------------------
 
