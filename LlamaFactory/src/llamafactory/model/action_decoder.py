@@ -224,8 +224,8 @@ class ActionDecoder(nn.Module):
             # Classification MLP
             return self.head(cls_token)
 
-        else:
-            raise ValueError(f"Unknown decoder_type: {self.decoder_type}")
+        # Note: Invalid decoder_type is already caught in __init__, so we should never reach here
+        raise RuntimeError(f"Unexpected decoder_type: {self.decoder_type}")
 
     def save_pretrained(self, save_directory: str) -> None:
         r"""Save action decoder weights to *save_directory*."""

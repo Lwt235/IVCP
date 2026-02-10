@@ -202,17 +202,21 @@ class ActionClassificationTrainer(Trainer):
         # Reshape to per-batch format
         # For simplicity, we assume all samples in the batch have the same visual tokens
         # This is a reasonable assumption for video action classification
-        batch_size = inputs["input_ids"].size(0)
-        num_visual_tokens = all_visual_features.size(0) // batch_size
+        batch_size = inputs.get("input_ids", torch.zeros(1)).size(0)
+        total_tokens = all_visual_features.size(0)
 
-        if all_visual_features.size(0) % batch_size != 0:
+        if total_tokens % batch_size != 0:
             # Handle case where visual tokens are not evenly distributed
-            # Take average pooling or truncate
-            num_visual_tokens = all_visual_features.size(0) // batch_size
+            # Truncate to the largest multiple of batch_size
+            num_visual_tokens = total_tokens // batch_size
             if num_visual_tokens == 0:
-                # If fewer visual tokens than batch size, replicate
+                # If fewer visual tokens than batch size, replicate for each sample
                 all_visual_features = all_visual_features.unsqueeze(0).expand(batch_size, -1, -1)
                 return all_visual_features
+            # Truncate to evenly divisible size
+            all_visual_features = all_visual_features[:num_visual_tokens * batch_size]
+        else:
+            num_visual_tokens = total_tokens // batch_size
 
         # Reshape to (batch_size, num_visual_tokens, hidden_size)
         visual_tokens = all_visual_features.view(batch_size, num_visual_tokens, -1)

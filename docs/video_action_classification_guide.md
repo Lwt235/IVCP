@@ -49,13 +49,15 @@ ActionDecoder
 
 **位置**：`LlamaFactory/src/llamafactory/model/action_decoder.py`
 
-支持两种架构：
+支持四种架构：
 - **linear**：单层线性映射 `hidden_size → num_classes`
 - **mlp**：两层 MLP 带 GELU 激活 `hidden_size → mlp_hidden_size → num_classes`
+- **transformer**：将 ACT token 隐藏状态通过线性投影层后与视觉编码器的视觉 token 合并，经过 transformer layers 和 MLP 输出类别
+- **transformer_no_vision**：与 transformer 相同的架构但不使用视觉 token，用于控制变量对比实验
 
 关键方法：
 ```python
-# 初始化
+# 初始化 - 基础版本
 decoder = ActionDecoder(
     hidden_size=1536,      # Qwen2.5-VL-3B 的隐藏维度
     num_classes=101,       # UCF101 有 101 个类别
@@ -63,10 +65,30 @@ decoder = ActionDecoder(
     mlp_hidden_size=None   # mlp 模式下可选
 )
 
+# 初始化 - Transformer 版本（使用视觉 token）
+decoder = ActionDecoder(
+    hidden_size=1536,
+    num_classes=101,
+    decoder_type="transformer",  # 或 "transformer_no_vision"
+    mlp_hidden_size=768,         # MLP 隐藏层大小
+    num_transformer_layers=2,    # Transformer 层数
+    num_heads=8,                 # 注意力头数
+    dropout=0.1,                 # Dropout 比率
+)
+
 # 保存/加载
 decoder.save_pretrained("/path/to/checkpoint")
 decoder.load_pretrained("/path/to/checkpoint")
 ```
+
+#### Transformer 解码器架构说明
+
+当使用 `transformer` 或 `transformer_no_vision` 类型时：
+
+1. **线性投影层 G**：将 ACT token 的隐藏状态 H 投影为 H(G)，形状为 `[B, 1, D]`
+2. **视觉 token 合并**（仅 `transformer` 类型）：将 H(G) 与 Qwen2.5-VL 视觉编码器编码的视觉 token T_V 合并，H(G) 作为类似 CLS token 的角色
+3. **Transformer Layers**：通过可配置数量的 Transformer 层进行特征融合
+4. **分类 MLP**：从 H(G) 对应位置提取特征，通过 MLP 输出最终类别
 
 ### 2. 数据处理流程
 
@@ -468,10 +490,14 @@ use_dora: true  # 推荐：使用 DoRA 提升性能
 
 ### 动作分类参数
 num_action_classes: 101  # UCF101 有 101 个类别
-action_decoder_type: linear  # 可选: linear 或 mlp
-action_decoder_hidden_size: null  # mlp 模式下可设置，如 512
+action_decoder_type: linear  # 可选: linear, mlp, transformer, transformer_no_vision
+action_decoder_hidden_size: null  # mlp/transformer 模式下可设置，如 512
 action_decoder_path: null  # 如果有预训练的 decoder 可指定路径
 action_token_lr_scale: 0.1  # <ACT> token embedding 的学习率缩放
+# transformer/transformer_no_vision 模式下的额外参数：
+# action_decoder_num_transformer_layers: 2  # Transformer 层数
+# action_decoder_num_heads: 8  # 注意力头数
+# action_decoder_dropout: 0.1  # Dropout 比率
 
 ### 数据集配置
 dataset: ucf101_train  # 使用准备好的 UCF101 训练集
@@ -575,6 +601,43 @@ ddp_timeout: 180000000
 ### 优化器配置
 flash_attn: fa2
 enable_liger_kernel: true
+```
+
+### 3. Transformer 解码器配置示例（使用视觉 token）
+
+如需使用融合视觉 token 的 Transformer 解码器：
+
+```yaml
+### 模型配置
+model_name_or_path: /path/to/models/Qwen2.5-VL-3B-Instruct
+image_max_pixels: 262144
+video_max_pixels: 16384
+trust_remote_code: true
+
+### 训练方法
+stage: action_cls
+do_train: true
+finetuning_type: lora
+lora_rank: 16
+lora_alpha: 32
+lora_target: all
+use_dora: true
+
+### 动作分类参数 - Transformer 版本
+num_action_classes: 101
+action_decoder_type: transformer  # 使用融合视觉token的transformer解码器
+action_decoder_hidden_size: 768  # MLP隐藏层大小
+action_decoder_num_transformer_layers: 2  # Transformer 层数
+action_decoder_num_heads: 8  # 注意力头数
+action_decoder_dropout: 0.1  # Dropout 比率
+
+### 其他配置与基础版本相同...
+```
+
+对于控制变量实验（不使用视觉 token 但保持相同架构），可使用：
+
+```yaml
+action_decoder_type: transformer_no_vision  # 相同架构但不融合视觉token
 ```
 
 ---
