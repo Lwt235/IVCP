@@ -15,8 +15,10 @@
 import os
 import tempfile
 
+import numpy as np
 import pytest
 import torch
+from transformers import EvalPrediction
 
 from llamafactory.hparams.finetuning_args import ActionClassificationArguments, FinetuningArguments
 from llamafactory.model.action_decoder import ACTION_DECODER_WEIGHTS_NAME, ActionDecoder
@@ -164,7 +166,7 @@ class TestActionClsForward:
         return _FakeModel()
 
     def test_action_cls_forward_returns_tuple(self):
-        """_action_cls_forward must return (loss, logits)."""
+        """_action_cls_forward must return (loss, logits, action_labels)."""
         from llamafactory.model.action_decoder import ActionDecoder
         from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
 
@@ -191,11 +193,14 @@ class TestActionClsForward:
         }
 
         model = self._make_dummy_model(hidden_size)
-        loss, logits = trainer._action_cls_forward(model, inputs)
+        loss, logits, action_labels = trainer._action_cls_forward(model, inputs)
 
         assert isinstance(loss, torch.Tensor)
         assert loss.dim() == 0  # scalar
         assert logits.shape == (batch_size, num_classes)
+        assert action_labels.shape == (batch_size,)
+        assert action_labels[0].item() == 0
+        assert action_labels[1].item() == 3
 
     def test_compute_loss_returns_scalar(self):
         """compute_loss must return only the loss tensor (not a tuple)."""
@@ -269,3 +274,110 @@ class TestActionClsTemplates:
 
         user_prompts = [tpl.user for tpl in ACTION_CLS_TEMPLATES]
         assert len(set(user_prompts)) == len(user_prompts), "Duplicate user prompts found"
+
+
+# ---------------------------------------------------------------------------
+# ComputeActionAccuracy tests
+# ---------------------------------------------------------------------------
+
+
+class TestComputeActionAccuracy:
+    def test_perfect_accuracy(self):
+        """All predictions correct should give 1.0 accuracy."""
+        from llamafactory.train.action_cls.metric import ComputeActionAccuracy
+
+        metric = ComputeActionAccuracy()
+        # 4 samples, 5 classes, correct predictions
+        logits = np.array([
+            [10.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 10.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 10.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 10.0, 0.0],
+        ])
+        labels = np.array([0, 1, 2, 3])
+        eval_preds = EvalPrediction(predictions=logits, label_ids=labels)
+        result = metric(eval_preds)
+        assert result["action_accuracy_top1"] == 1.0
+        assert result["action_accuracy_top5"] == 1.0
+
+    def test_zero_accuracy(self):
+        """All predictions wrong should give 0.0 top-1 accuracy."""
+        from llamafactory.train.action_cls.metric import ComputeActionAccuracy
+
+        metric = ComputeActionAccuracy()
+        logits = np.array([
+            [0.0, 10.0, 0.0, 0.0, 0.0],
+            [10.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 10.0],
+            [0.0, 0.0, 10.0, 0.0, 0.0],
+        ])
+        labels = np.array([0, 1, 2, 3])
+        eval_preds = EvalPrediction(predictions=logits, label_ids=labels)
+        result = metric(eval_preds)
+        assert result["action_accuracy_top1"] == 0.0
+
+    def test_partial_accuracy(self):
+        """Half correct should give 0.5 top-1 accuracy."""
+        from llamafactory.train.action_cls.metric import ComputeActionAccuracy
+
+        metric = ComputeActionAccuracy()
+        logits = np.array([
+            [10.0, 0.0, 0.0],  # pred=0, label=0 -> correct
+            [0.0, 0.0, 10.0],  # pred=2, label=1 -> wrong
+            [0.0, 10.0, 0.0],  # pred=1, label=1 -> correct
+            [10.0, 0.0, 0.0],  # pred=0, label=2 -> wrong
+        ])
+        labels = np.array([0, 1, 1, 2])
+        eval_preds = EvalPrediction(predictions=logits, label_ids=labels)
+        result = metric(eval_preds)
+        assert result["action_accuracy_top1"] == 0.5
+
+    def test_top5_accuracy(self):
+        """Top-5 should be >= top-1 accuracy."""
+        from llamafactory.train.action_cls.metric import ComputeActionAccuracy
+
+        metric = ComputeActionAccuracy()
+        # 10 classes, correct label is in top-5 but not top-1
+        logits = np.array([
+            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0],  # pred=9, label=5 -> top1 wrong, top5 correct
+            [5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # pred=0, label=0 -> both correct
+        ])
+        labels = np.array([5, 0])
+        eval_preds = EvalPrediction(predictions=logits, label_ids=labels)
+        result = metric(eval_preds)
+        assert result["action_accuracy_top1"] == 0.5
+        assert result["action_accuracy_top5"] == 1.0
+
+    def test_accumulation_across_batches(self):
+        """Metrics should accumulate across multiple calls before _dump."""
+        from llamafactory.train.action_cls.metric import ComputeActionAccuracy
+
+        metric = ComputeActionAccuracy()
+        # Batch 1: 1/2 correct
+        logits1 = np.array([[10.0, 0.0], [10.0, 0.0]])
+        labels1 = np.array([0, 1])
+        eval_preds1 = EvalPrediction(predictions=logits1, label_ids=labels1)
+        result1 = metric(eval_preds1, compute_result=False)
+        assert result1 is None
+
+        # Batch 2: 2/2 correct
+        logits2 = np.array([[10.0, 0.0], [0.0, 10.0]])
+        labels2 = np.array([0, 1])
+        eval_preds2 = EvalPrediction(predictions=logits2, label_ids=labels2)
+        result2 = metric(eval_preds2, compute_result=True)
+        # Overall: 3/4 correct
+        assert result2["action_accuracy_top1"] == 0.75
+
+    def test_state_cleared_after_dump(self):
+        """Internal state should be cleared after _dump."""
+        from llamafactory.train.action_cls.metric import ComputeActionAccuracy
+
+        metric = ComputeActionAccuracy()
+        logits = np.array([[10.0, 0.0]])
+        labels = np.array([0])
+        eval_preds = EvalPrediction(predictions=logits, label_ids=labels)
+        metric(eval_preds)
+
+        # After dump, internal lists should be empty
+        assert len(metric.top1) == 0
+        assert len(metric.top5) == 0
