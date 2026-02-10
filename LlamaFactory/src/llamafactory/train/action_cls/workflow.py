@@ -74,7 +74,7 @@ def run_action_cls(
         setattr(model, "_hf_peft_config_loaded", True)
 
     # Resize embeddings to accommodate <ACT> token.
-    model.resize_token_embeddings(len(tokenizer))
+    model.resize_token_embeddings(len(tokenizer), pad_to_multiple_of=64)
 
     # ---- action decoder ------------------------------------------------------
     hidden_size = getattr(model.config, "hidden_size", None)

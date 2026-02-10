@@ -33,10 +33,13 @@ from typing_extensions import override
 
 from ...extras import logging
 from ...model.action_decoder import ACTION_DECODER_WEIGHTS_NAME, ActionDecoder
+from ..callbacks import SaveProcessorCallback
 from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
 
 
 if TYPE_CHECKING:
+    from transformers import ProcessorMixin
+
     from ...hparams import FinetuningArguments, ModelArguments, TrainingArguments
 
 
@@ -60,15 +63,22 @@ class ActionClassificationTrainer(Trainer):
         action_decoder: "ActionDecoder",
         action_token_id: int,
         finetuning_args: "FinetuningArguments",
+        processor: Optional["ProcessorMixin"] = None,
         model_args: Optional["ModelArguments"] = None,
         **kwargs,
     ) -> None:
         kwargs["processing_class"] = kwargs.pop("tokenizer")
         super().__init__(**kwargs)
+        if processor is not None:
+            self.model_accepts_loss_kwargs = False
+
         self.action_decoder = action_decoder
         self.action_token_id = action_token_id
         self.finetuning_args = finetuning_args
         self.ce_loss = nn.CrossEntropyLoss()
+
+        if processor is not None:
+            self.add_callback(SaveProcessorCallback(processor))
 
         if finetuning_args.use_badam:
             from badam import BAdamCallback, clip_grad_norm_old_version  # type: ignore
