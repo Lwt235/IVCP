@@ -223,11 +223,11 @@ class ActionClassificationTrainer(Trainer):
         confidences = np.max(probs, axis=-1)
 
         with open(output_prediction_file, "w", encoding="utf-8") as writer:
-            res: list[str] = []
-            for pred, conf, label in zip(preds, confidences, labels):
-                res.append(json.dumps({
+            for i, (pred, conf, label) in enumerate(zip(preds, confidences, labels)):
+                if i > 0:
+                    writer.write("\n")
+                writer.write(json.dumps({
                     "label": int(label),
                     "predict": int(pred),
                     "confidence": round(float(conf), 4),
                 }))
-            writer.write("\n".join(res))
