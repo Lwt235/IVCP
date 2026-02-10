@@ -408,6 +408,9 @@ def align_dataset(
     _audios: []
     """
     column_names = list(next(iter(dataset)).keys())
+    # Preserve extra columns needed by downstream processors (e.g. action_label for action_cls).
+    preserve_columns = {"action_label"}
+    remove_cols = [c for c in column_names if c not in preserve_columns]
     kwargs = {}
     if not data_args.streaming:
         kwargs = dict(
@@ -420,6 +423,6 @@ def align_dataset(
     return dataset.map(
         dataset_converter,
         batched=False,
-        remove_columns=column_names,
+        remove_columns=remove_cols,
         **kwargs,
     )
