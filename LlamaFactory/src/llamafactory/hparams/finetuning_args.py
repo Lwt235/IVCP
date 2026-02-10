@@ -448,9 +448,17 @@ class ActionClassificationArguments:
         default=51,
         metadata={"help": "Number of action classes (e.g. 51 for HMDB-51, 101 for UCF-101)."},
     )
-    action_decoder_type: Literal["linear", "mlp"] = field(
+    action_decoder_type: Literal["linear", "mlp", "transformer", "transformer_no_vision"] = field(
         default="linear",
-        metadata={"help": "Architecture of the action decoder head (linear or mlp)."},
+        metadata={
+            "help": (
+                "Architecture of the action decoder head. Options: "
+                "'linear' - single linear layer, "
+                "'mlp' - two-layer MLP with GELU, "
+                "'transformer' - projection + visual tokens + 2 transformer layers + MLP, "
+                "'transformer_no_vision' - same as transformer but without visual tokens (for controlled comparison)."
+            )
+        },
     )
     action_decoder_hidden_size: int | None = field(
         default=None,
@@ -463,6 +471,18 @@ class ActionClassificationArguments:
     action_token_lr_scale: float = field(
         default=0.1,
         metadata={"help": "Learning rate scale factor for the <ACT> token embedding relative to the base LR."},
+    )
+    action_decoder_num_transformer_layers: int = field(
+        default=2,
+        metadata={"help": "Number of transformer layers for transformer/transformer_no_vision decoder types."},
+    )
+    action_decoder_num_heads: int = field(
+        default=8,
+        metadata={"help": "Number of attention heads for transformer decoder layers."},
+    )
+    action_decoder_dropout: float = field(
+        default=0.1,
+        metadata={"help": "Dropout rate for transformer decoder layers."},
     )
 
 

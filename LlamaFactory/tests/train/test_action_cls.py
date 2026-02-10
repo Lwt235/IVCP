@@ -48,9 +48,73 @@ class TestActionDecoder:
         out = decoder(x)
         assert out.shape == (1, 101)
 
+    def test_transformer_forward_with_visual_tokens(self):
+        """Test transformer decoder with visual tokens."""
+        decoder = ActionDecoder(
+            hidden_size=128,
+            num_classes=10,
+            decoder_type="transformer",
+            num_transformer_layers=2,
+            num_heads=4,
+        )
+        # ACT token hidden state (B, D)
+        x = torch.randn(2, 128)
+        # Visual tokens (B, num_visual_tokens, D)
+        visual_tokens = torch.randn(2, 16, 128)
+        out = decoder(x, visual_tokens=visual_tokens)
+        assert out.shape == (2, 10)
+
+    def test_transformer_forward_requires_visual_tokens(self):
+        """Test that transformer decoder requires visual tokens."""
+        decoder = ActionDecoder(
+            hidden_size=128,
+            num_classes=10,
+            decoder_type="transformer",
+        )
+        x = torch.randn(2, 128)
+        with pytest.raises(ValueError, match="visual_tokens is required"):
+            decoder(x)  # No visual tokens provided
+
+    def test_transformer_no_vision_forward(self):
+        """Test transformer_no_vision decoder without visual tokens."""
+        decoder = ActionDecoder(
+            hidden_size=128,
+            num_classes=10,
+            decoder_type="transformer_no_vision",
+            num_transformer_layers=2,
+            num_heads=4,
+        )
+        x = torch.randn(2, 128)
+        out = decoder(x)  # No visual tokens needed
+        assert out.shape == (2, 10)
+
+    def test_transformer_with_3d_input(self):
+        """Test transformer decoder with 3D input (B, 1, D)."""
+        decoder = ActionDecoder(
+            hidden_size=128,
+            num_classes=10,
+            decoder_type="transformer",
+        )
+        # Input with explicit sequence dimension
+        x = torch.randn(2, 1, 128)
+        visual_tokens = torch.randn(2, 16, 128)
+        out = decoder(x, visual_tokens=visual_tokens)
+        assert out.shape == (2, 10)
+
+    def test_transformer_no_vision_with_3d_input(self):
+        """Test transformer_no_vision decoder with 3D input (B, 1, D)."""
+        decoder = ActionDecoder(
+            hidden_size=128,
+            num_classes=10,
+            decoder_type="transformer_no_vision",
+        )
+        x = torch.randn(2, 1, 128)
+        out = decoder(x)
+        assert out.shape == (2, 10)
+
     def test_invalid_type(self):
         with pytest.raises(ValueError, match="Unknown decoder_type"):
-            ActionDecoder(hidden_size=128, num_classes=10, decoder_type="transformer")
+            ActionDecoder(hidden_size=128, num_classes=10, decoder_type="invalid_type")
 
     def test_save_and_load(self):
         decoder = ActionDecoder(hidden_size=64, num_classes=5, decoder_type="linear")
@@ -64,6 +128,42 @@ class TestActionDecoder:
             decoder2 = ActionDecoder(hidden_size=64, num_classes=5, decoder_type="linear")
             decoder2.load_pretrained(tmpdir)
             loaded_out = decoder2(x)
+
+            assert torch.allclose(original_out, loaded_out, atol=1e-6)
+
+    def test_save_and_load_transformer(self):
+        """Test saving and loading transformer decoder weights."""
+        decoder = ActionDecoder(
+            hidden_size=64,
+            num_classes=5,
+            decoder_type="transformer",
+            num_transformer_layers=2,
+            num_heads=4,
+        )
+        x = torch.randn(1, 64)
+        visual_tokens = torch.randn(1, 8, 64)
+
+        # Set to eval mode to disable dropout for deterministic comparison
+        decoder.eval()
+        with torch.no_grad():
+            original_out = decoder(x, visual_tokens=visual_tokens)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            decoder.save_pretrained(tmpdir)
+            assert os.path.isfile(os.path.join(tmpdir, ACTION_DECODER_WEIGHTS_NAME))
+
+            decoder2 = ActionDecoder(
+                hidden_size=64,
+                num_classes=5,
+                decoder_type="transformer",
+                num_transformer_layers=2,
+                num_heads=4,
+            )
+            decoder2.load_pretrained(tmpdir)
+            decoder2.eval()
+
+            with torch.no_grad():
+                loaded_out = decoder2(x, visual_tokens=visual_tokens)
 
             assert torch.allclose(original_out, loaded_out, atol=1e-6)
 
@@ -91,6 +191,9 @@ class TestFinetuningArgsActionCls:
         assert args.action_decoder_hidden_size is None
         assert args.action_decoder_path is None
         assert args.action_token_lr_scale == 0.1
+        assert args.action_decoder_num_transformer_layers == 2
+        assert args.action_decoder_num_heads == 8
+        assert args.action_decoder_dropout == 0.1
 
     def test_custom_action_cls_args(self):
         args = FinetuningArguments(
@@ -104,6 +207,30 @@ class TestFinetuningArgsActionCls:
         assert args.action_decoder_type == "mlp"
         assert args.action_decoder_hidden_size == 512
         assert args.action_token_lr_scale == 0.05
+
+    def test_transformer_decoder_args(self):
+        """Test transformer decoder type arguments."""
+        args = FinetuningArguments(
+            stage="action_cls",
+            num_action_classes=101,
+            action_decoder_type="transformer",
+            action_decoder_num_transformer_layers=4,
+            action_decoder_num_heads=16,
+            action_decoder_dropout=0.2,
+        )
+        assert args.action_decoder_type == "transformer"
+        assert args.action_decoder_num_transformer_layers == 4
+        assert args.action_decoder_num_heads == 16
+        assert args.action_decoder_dropout == 0.2
+
+    def test_transformer_no_vision_decoder_args(self):
+        """Test transformer_no_vision decoder type arguments."""
+        args = FinetuningArguments(
+            stage="action_cls",
+            num_action_classes=51,
+            action_decoder_type="transformer_no_vision",
+        )
+        assert args.action_decoder_type == "transformer_no_vision"
 
 
 # ---------------------------------------------------------------------------
@@ -381,3 +508,109 @@ class TestComputeActionAccuracy:
         # After dump, internal lists should be empty
         assert len(metric.top1) == 0
         assert len(metric.top5) == 0
+
+
+# ---------------------------------------------------------------------------
+# ActionClassificationTrainer.save_predictions tests
+# ---------------------------------------------------------------------------
+
+
+class TestSavePredictions:
+    def _make_trainer_stub(self, output_dir):
+        """Create a minimal trainer-like object with save_predictions."""
+        import types
+
+        from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
+
+        trainer = object.__new__(ActionClassificationTrainer)
+        trainer.args = types.SimpleNamespace(output_dir=output_dir, process_index=0)
+        return trainer
+
+    def test_save_predictions_creates_file(self):
+        """save_predictions must create generated_predictions.jsonl."""
+        import json
+        import tempfile
+        from collections import namedtuple
+
+        PredictionOutput = namedtuple("PredictionOutput", ["predictions", "label_ids", "metrics"])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            trainer = self._make_trainer_stub(tmpdir)
+            logits = np.array([
+                [10.0, 0.0, 0.0],
+                [0.0, 10.0, 0.0],
+                [0.0, 0.0, 10.0],
+            ])
+            labels = np.array([0, 1, 2])
+            predict_results = PredictionOutput(predictions=logits, label_ids=labels, metrics={})
+            trainer.save_predictions(predict_results)
+
+            output_file = os.path.join(tmpdir, "generated_predictions.jsonl")
+            assert os.path.isfile(output_file)
+
+            with open(output_file, "r", encoding="utf-8") as f:
+                lines = f.read().strip().split("\n")
+
+            assert len(lines) == 3
+            for line in lines:
+                record = json.loads(line)
+                assert "label" in record
+                assert "predict" in record
+                assert "confidence" in record
+
+    def test_save_predictions_correct_values(self):
+        """Predicted class and label should match expected values."""
+        import json
+        import tempfile
+        from collections import namedtuple
+
+        PredictionOutput = namedtuple("PredictionOutput", ["predictions", "label_ids", "metrics"])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            trainer = self._make_trainer_stub(tmpdir)
+            logits = np.array([
+                [10.0, 0.0, 0.0],  # pred=0
+                [0.0, 0.0, 10.0],  # pred=2
+            ])
+            labels = np.array([0, 1])
+            predict_results = PredictionOutput(predictions=logits, label_ids=labels, metrics={})
+            trainer.save_predictions(predict_results)
+
+            output_file = os.path.join(tmpdir, "generated_predictions.jsonl")
+            with open(output_file, "r", encoding="utf-8") as f:
+                lines = f.read().strip().split("\n")
+
+            r0 = json.loads(lines[0])
+            assert r0["label"] == 0
+            assert r0["predict"] == 0
+            assert r0["confidence"] > 0.9
+
+            r1 = json.loads(lines[1])
+            assert r1["label"] == 1
+            assert r1["predict"] == 2
+            assert r1["confidence"] > 0.9
+
+    def test_save_predictions_handles_tuple_logits(self):
+        """save_predictions should handle logits wrapped in a tuple."""
+        import json
+        import tempfile
+        from collections import namedtuple
+
+        PredictionOutput = namedtuple("PredictionOutput", ["predictions", "label_ids", "metrics"])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            trainer = self._make_trainer_stub(tmpdir)
+            logits = (np.array([[10.0, 0.0], [0.0, 10.0]]),)
+            labels = np.array([0, 1])
+            predict_results = PredictionOutput(predictions=logits, label_ids=labels, metrics={})
+            trainer.save_predictions(predict_results)
+
+            output_file = os.path.join(tmpdir, "generated_predictions.jsonl")
+            with open(output_file, "r", encoding="utf-8") as f:
+                lines = f.read().strip().split("\n")
+
+            assert len(lines) == 2
+            r0 = json.loads(lines[0])
+            assert r0["predict"] == 0
+            r1 = json.loads(lines[1])
+            assert r1["predict"] == 1
