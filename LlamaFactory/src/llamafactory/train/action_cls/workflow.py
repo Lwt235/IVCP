@@ -87,6 +87,9 @@ def run_action_cls(
         num_classes=finetuning_args.num_action_classes,
         decoder_type=finetuning_args.action_decoder_type,
         mlp_hidden_size=finetuning_args.action_decoder_hidden_size,
+        num_transformer_layers=finetuning_args.action_decoder_num_transformer_layers,
+        num_heads=finetuning_args.action_decoder_num_heads,
+        dropout=finetuning_args.action_decoder_dropout,
     )
     if finetuning_args.action_decoder_path is not None:
         action_decoder.load_pretrained(finetuning_args.action_decoder_path)

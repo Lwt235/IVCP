@@ -130,6 +130,95 @@ class ActionClassificationTrainer(Trainer):
                 logger.warning_rank0(f"Sample {i} has no <ACT> token; using zero vector.")
         return result
 
+    def _extract_visual_tokens(
+        self,
+        model: "torch.nn.Module",
+        inputs: dict[str, Any],
+    ) -> Optional[torch.Tensor]:
+        r"""Extract visual tokens from the vision encoder for transformer decoder.
+
+        This method extracts the visual features from Qwen2.5-VL's visual encoder
+        before they are merged with text embeddings.
+
+        Args:
+            model: The VLM model (potentially wrapped in accelerator).
+            inputs: The input dict containing pixel_values, pixel_values_videos, etc.
+
+        Returns:
+            Visual tokens tensor of shape ``(batch_size, num_visual_tokens, hidden_size)``
+            or None if no visual inputs are provided.
+        """
+        # Get the actual model (unwrap if needed)
+        actual_model = model
+        if hasattr(model, "module"):
+            actual_model = model.module
+        if hasattr(actual_model, "base_model"):
+            actual_model = actual_model.base_model
+        if hasattr(actual_model, "model"):
+            # For PeftModel or wrapped models
+            if hasattr(actual_model.model, "visual"):
+                actual_model = actual_model.model
+
+        # Check if this is a Qwen2-VL type model
+        visual_module = getattr(actual_model, "visual", None)
+        if visual_module is None:
+            # Try to access through model attribute (transformers >= 4.52.0)
+            if hasattr(actual_model, "model") and hasattr(actual_model.model, "visual"):
+                visual_module = actual_model.model.visual
+
+        if visual_module is None:
+            logger.warning_rank0("Could not find visual module in model. Visual tokens not available.")
+            return None
+
+        # Extract visual inputs
+        pixel_values = inputs.get("pixel_values", None)
+        pixel_values_videos = inputs.get("pixel_values_videos", None)
+        image_grid_thw = inputs.get("image_grid_thw", None)
+        video_grid_thw = inputs.get("video_grid_thw", None)
+
+        if pixel_values is None and pixel_values_videos is None:
+            return None
+
+        # Encode visual features through the vision encoder
+        visual_features_list = []
+
+        if pixel_values is not None and pixel_values.numel() > 0:
+            # Encode image features
+            image_features = visual_module(pixel_values, grid_thw=image_grid_thw)
+            visual_features_list.append(image_features)
+
+        if pixel_values_videos is not None and pixel_values_videos.numel() > 0:
+            # Encode video features
+            video_features = visual_module(pixel_values_videos, grid_thw=video_grid_thw)
+            visual_features_list.append(video_features)
+
+        if not visual_features_list:
+            return None
+
+        # Concatenate all visual features
+        # Shape: (total_num_patches, hidden_size)
+        all_visual_features = torch.cat(visual_features_list, dim=0)
+
+        # Reshape to per-batch format
+        # For simplicity, we assume all samples in the batch have the same visual tokens
+        # This is a reasonable assumption for video action classification
+        batch_size = inputs["input_ids"].size(0)
+        num_visual_tokens = all_visual_features.size(0) // batch_size
+
+        if all_visual_features.size(0) % batch_size != 0:
+            # Handle case where visual tokens are not evenly distributed
+            # Take average pooling or truncate
+            num_visual_tokens = all_visual_features.size(0) // batch_size
+            if num_visual_tokens == 0:
+                # If fewer visual tokens than batch size, replicate
+                all_visual_features = all_visual_features.unsqueeze(0).expand(batch_size, -1, -1)
+                return all_visual_features
+
+        # Reshape to (batch_size, num_visual_tokens, hidden_size)
+        visual_tokens = all_visual_features.view(batch_size, num_visual_tokens, -1)
+
+        return visual_tokens
+
     def _action_cls_forward(self, model, inputs):
         r"""Shared forward logic for both training and evaluation.
 
@@ -141,6 +230,16 @@ class ActionClassificationTrainer(Trainer):
         # We do not need language-modelling labels for this stage.
         inputs.pop("labels", None)
 
+        # Extract visual tokens if needed for transformer decoder
+        visual_tokens = None
+        if self.action_decoder.decoder_type == "transformer":
+            visual_tokens = self._extract_visual_tokens(model, inputs)
+            if visual_tokens is None:
+                raise ValueError(
+                    "transformer decoder type requires visual tokens, but none were found. "
+                    "Make sure the input contains pixel_values or pixel_values_videos."
+                )
+
         outputs = model(
             **inputs,
             output_hidden_states=True,
@@ -151,7 +250,14 @@ class ActionClassificationTrainer(Trainer):
 
         # Move action decoder to the same device/dtype as the hidden states.
         self.action_decoder = self.action_decoder.to(device=action_hidden.device, dtype=action_hidden.dtype)
-        logits = self.action_decoder(action_hidden)  # (B, num_classes)
+
+        # Pass visual tokens if using transformer decoder
+        if self.action_decoder.decoder_type in ("transformer", "transformer_no_vision"):
+            if visual_tokens is not None:
+                visual_tokens = visual_tokens.to(device=action_hidden.device, dtype=action_hidden.dtype)
+            logits = self.action_decoder(action_hidden, visual_tokens=visual_tokens)
+        else:
+            logits = self.action_decoder(action_hidden)  # (B, num_classes)
 
         action_labels = action_labels.to(device=logits.device)
         loss = self.ce_loss(logits, action_labels)
