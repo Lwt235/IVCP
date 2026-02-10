@@ -1,0 +1,37 @@
+### 模型配置
+model_name_or_path: /home/liwt/IVCP/LlamaFactory/outputs/qwen2_5_vl_sft_stage3_merged
+adapter_name_or_path: outputs/qwen2_5vl_action_cls_ucf101  # 训练好的 LoRA 权重路径
+image_max_pixels: 262144
+video_max_pixels: 16384
+trust_remote_code: true
+
+### 评估方法
+stage: action_cls
+do_train: false
+do_eval: true
+finetuning_type: lora
+
+### 动作分类参数
+num_action_classes: 101
+action_decoder_type: mlp
+action_decoder_hidden_size: 512
+action_decoder_path: outputs/qwen2_5vl_action_cls_ucf101  # action decoder 权重路径
+
+### 数据集配置
+eval_dataset: ucf101_test
+template: qwen2_vl
+cutoff_len: 2048
+preprocessing_num_workers: 16
+dataloader_num_workers: 4
+
+### 输出配置
+output_dir: outputs/qwen2_5vl_action_cls_ucf101_eval
+overwrite_output_dir: true
+
+### 评估超参数
+per_device_eval_batch_size: 4
+bf16: true
+
+### 优化器配置
+flash_attn: fa2
+enable_liger_kernel: true

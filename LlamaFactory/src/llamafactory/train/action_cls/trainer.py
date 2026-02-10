@@ -131,7 +131,7 @@ class ActionClassificationTrainer(Trainer):
         r"""Shared forward logic for both training and evaluation.
 
         Pops ``action_labels`` / ``labels`` from *inputs*, runs the backbone
-        with ``output_hidden_states=True``, and returns ``(loss, logits)``.
+        with ``output_hidden_states=True``, and returns ``(loss, logits, action_labels)``.
         """
         # Pop action_labels so that the model forward does not receive them.
         action_labels = inputs.pop("action_labels")  # (B,)
@@ -153,11 +153,11 @@ class ActionClassificationTrainer(Trainer):
         action_labels = action_labels.to(device=logits.device)
         loss = self.ce_loss(logits, action_labels)
 
-        return loss, logits
+        return loss, logits, action_labels
 
     @override
     def compute_loss(self, model, inputs, *args, **kwargs):
-        loss, _ = self._action_cls_forward(model, inputs)
+        loss, _, _ = self._action_cls_forward(model, inputs)
         return loss
 
     @override
@@ -170,18 +170,17 @@ class ActionClassificationTrainer(Trainer):
     ) -> tuple[Optional["torch.Tensor"], Optional["torch.Tensor"], Optional["torch.Tensor"]]:
         r"""Run evaluation forward pass with proper ``action_labels`` handling.
 
-        Returns ``(loss, logits, labels)`` where *labels* is always ``None``
-        because classification targets are consumed internally by the loss
-        computation and are not needed downstream by the evaluation loop.
+        Returns ``(loss, logits, labels)`` where *labels* are the action class
+        indices so that ``compute_metrics`` can calculate accuracy.
         """
         inputs = self._prepare_inputs(inputs)
         with torch.no_grad():
-            loss, logits = self._action_cls_forward(model, inputs)
+            loss, logits, action_labels = self._action_cls_forward(model, inputs)
 
         if prediction_loss_only:
             return loss.detach(), None, None
 
-        return loss.detach(), logits.detach(), None
+        return loss.detach(), logits.detach(), action_labels.detach()
 
     @override
     def _get_train_sampler(self, *args, **kwargs) -> Optional["torch.utils.data.Sampler"]:

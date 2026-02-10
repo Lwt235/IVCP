@@ -27,6 +27,7 @@ from ...extras.ploting import plot_loss
 from ...model import load_model, load_tokenizer
 from ...model.action_decoder import ActionDecoder
 from ..trainer_utils import create_modelcard_and_push
+from .metric import ComputeActionAccuracy
 from .trainer import ActionClassificationTrainer
 
 
@@ -111,6 +112,7 @@ def run_action_cls(
         finetuning_args=finetuning_args,
         data_collator=data_collator,
         callbacks=callbacks,
+        compute_metrics=ComputeActionAccuracy() if training_args.do_eval else None,
         **dataset_module,
         **tokenizer_module,
     )
