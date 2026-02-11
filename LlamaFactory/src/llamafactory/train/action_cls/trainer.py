@@ -191,11 +191,19 @@ class ActionClassificationTrainer(Trainer):
         if pixel_values is not None and pixel_values.numel() > 0:
             # Encode image features
             image_features = visual_module(pixel_values, grid_thw=image_grid_thw)
+            if not isinstance(image_features, torch.Tensor):
+                image_features = getattr(image_features, "last_hidden_state", None)
+                if image_features is None:
+                    raise TypeError("Vision encoder returned non-tensor output without last_hidden_state attribute.")
             visual_features_list.append(image_features)
 
         if pixel_values_videos is not None and pixel_values_videos.numel() > 0:
             # Encode video features
             video_features = visual_module(pixel_values_videos, grid_thw=video_grid_thw)
+            if not isinstance(video_features, torch.Tensor):
+                video_features = getattr(video_features, "last_hidden_state", None)
+                if video_features is None:
+                    raise TypeError("Vision encoder returned non-tensor output without last_hidden_state attribute.")
             visual_features_list.append(video_features)
 
         if not visual_features_list:
