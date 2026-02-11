@@ -82,6 +82,12 @@ def run_action_cls(
     if hidden_size is None:
         raise ValueError("Cannot determine model hidden_size from config.")
 
+    # Get vision encoder hidden size (may differ from LLM hidden size)
+    visual_hidden_size = None
+    vision_config = getattr(model.config, "vision_config", None)
+    if vision_config is not None:
+        visual_hidden_size = getattr(vision_config, "hidden_size", None)
+
     action_decoder = ActionDecoder(
         hidden_size=hidden_size,
         num_classes=finetuning_args.num_action_classes,
@@ -90,6 +96,7 @@ def run_action_cls(
         num_transformer_layers=finetuning_args.action_decoder_num_transformer_layers,
         num_heads=finetuning_args.action_decoder_num_heads,
         dropout=finetuning_args.action_decoder_dropout,
+        visual_hidden_size=visual_hidden_size,
     )
     if finetuning_args.action_decoder_path is not None:
         action_decoder.load_pretrained(finetuning_args.action_decoder_path)

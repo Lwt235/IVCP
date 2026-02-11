@@ -108,6 +108,7 @@ class ActionDecoder(nn.Module):
         num_transformer_layers: int = 2,
         num_heads: int = 8,
         dropout: float = 0.1,
+        visual_hidden_size: Optional[int] = None,
     ) -> None:
         super().__init__()
         self.decoder_type = decoder_type
@@ -125,6 +126,12 @@ class ActionDecoder(nn.Module):
         elif decoder_type in ("transformer", "transformer_no_vision"):
             # Linear projection layer G: H -> H(G)
             self.projection = nn.Linear(hidden_size, hidden_size)
+
+            # Project visual tokens to hidden_size when dimensions differ
+            if visual_hidden_size is not None and visual_hidden_size != hidden_size:
+                self.visual_projection = nn.Linear(visual_hidden_size, hidden_size)
+            else:
+                self.visual_projection = None
 
             # Transformer layers
             self.transformer_layers = nn.ModuleList([
@@ -182,6 +189,10 @@ class ActionDecoder(nn.Module):
 
             if visual_tokens is None:
                 raise ValueError("visual_tokens is required for 'transformer' decoder type")
+
+            # Project visual tokens to match hidden_size if needed
+            if self.visual_projection is not None:
+                visual_tokens = self.visual_projection(visual_tokens)
 
             # Merge H(G) with visual tokens: [H(G), T_V]
             # H(G) acts as a cls token at the beginning

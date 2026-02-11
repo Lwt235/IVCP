@@ -64,6 +64,23 @@ class TestActionDecoder:
         out = decoder(x, visual_tokens=visual_tokens)
         assert out.shape == (2, 10)
 
+    def test_transformer_forward_with_mismatched_visual_tokens(self):
+        """Test transformer decoder with visual tokens of different hidden size."""
+        decoder = ActionDecoder(
+            hidden_size=128,
+            num_classes=10,
+            decoder_type="transformer",
+            num_transformer_layers=2,
+            num_heads=4,
+            visual_hidden_size=80,
+        )
+        # ACT token hidden state (B, D_llm)
+        x = torch.randn(2, 128)
+        # Visual tokens with different hidden size (B, num_visual_tokens, D_vision)
+        visual_tokens = torch.randn(2, 16, 80)
+        out = decoder(x, visual_tokens=visual_tokens)
+        assert out.shape == (2, 10)
+
     def test_transformer_forward_requires_visual_tokens(self):
         """Test that transformer decoder requires visual tokens."""
         decoder = ActionDecoder(
