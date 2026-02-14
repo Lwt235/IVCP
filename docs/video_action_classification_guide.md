@@ -144,7 +144,7 @@ def compute_loss(self, model, inputs):
     cls_loss = self.ce_loss(logits, action_labels)
     
     # 6. 结合 token 级 LM 损失（当 action_cls_token_loss_weight > 0 时）
-    if token_loss_weight > 0 and outputs.loss is not None:
+    if token_loss_weight > 0 and outputs.loss is not None and not torch.isnan(outputs.loss):
         loss = cls_loss + token_loss_weight * outputs.loss
     else:
         loss = cls_loss

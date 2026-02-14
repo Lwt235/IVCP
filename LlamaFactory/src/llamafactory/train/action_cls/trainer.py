@@ -293,7 +293,7 @@ class ActionClassificationTrainer(Trainer):
         cls_loss = self.ce_loss(logits, action_labels)
 
         # Combine with token-level LM loss when enabled.
-        if token_loss_weight > 0 and hasattr(outputs, "loss") and outputs.loss is not None:
+        if token_loss_weight > 0 and hasattr(outputs, "loss") and outputs.loss is not None and not torch.isnan(outputs.loss):
             loss = cls_loss + token_loss_weight * outputs.loss
         else:
             loss = cls_loss
