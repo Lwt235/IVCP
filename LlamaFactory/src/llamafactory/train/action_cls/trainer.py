@@ -38,6 +38,7 @@ from transformers import Trainer
 from typing_extensions import override
 
 from ...extras import logging
+from ...extras.constants import IGNORE_INDEX
 from ...model.action_decoder import ACTION_DECODER_WEIGHTS_NAME, ActionDecoder
 from ..callbacks import SaveProcessorCallback
 from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
@@ -259,6 +260,12 @@ class ActionClassificationTrainer(Trainer):
         token_loss_weight = getattr(self.finetuning_args, "action_cls_token_loss_weight", 0.0)
         if token_loss_weight <= 0:
             inputs.pop("labels", None)
+        else:
+            # Remove labels if they are all IGNORE_INDEX, which would cause the
+            # model's internal cross-entropy loss to return NaN.
+            labels = inputs.get("labels", None)
+            if labels is not None and (labels == IGNORE_INDEX).all():
+                inputs.pop("labels", None)
 
         # Extract visual tokens if needed for transformer decoder
         visual_tokens = None

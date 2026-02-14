@@ -485,6 +485,46 @@ class TestActionClsForward:
         assert loss.dim() == 0
         assert not torch.isnan(loss), "Loss should not be NaN when outputs.loss is NaN"
 
+    def test_all_ignore_labels_stripped(self):
+        """When all labels are IGNORE_INDEX and token_loss_weight > 0, labels
+        should be removed from inputs to prevent NaN loss from the model."""
+        from llamafactory.model.action_decoder import ActionDecoder
+        from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
+
+        hidden_size = 32
+        num_classes = 5
+        action_token_id = 99
+        batch_size = 2
+
+        torch.manual_seed(42)
+        decoder = ActionDecoder(hidden_size=hidden_size, num_classes=num_classes)
+
+        # Model that would return NaN loss if labels are present and all -100
+        model = self._make_dummy_model(hidden_size, return_nan_loss=True)
+
+        trainer = object.__new__(ActionClassificationTrainer)
+        trainer.action_decoder = decoder
+        trainer.action_token_id = action_token_id
+        trainer.ce_loss = torch.nn.CrossEntropyLoss()
+        trainer.finetuning_args = self._make_finetuning_args(token_loss_weight=0.5)
+
+        input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
+        inputs = {
+            "input_ids": input_ids.clone(),
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": torch.full_like(input_ids, -100),  # ALL labels are -100
+            "action_labels": torch.tensor([0, 3]),
+        }
+
+        torch.manual_seed(0)
+        loss, logits, action_labels = trainer._action_cls_forward(model, inputs)
+
+        # Loss should be a valid scalar (not NaN) because all-IGNORE_INDEX
+        # labels are stripped before model forward.
+        assert isinstance(loss, torch.Tensor)
+        assert loss.dim() == 0
+        assert not torch.isnan(loss), "Loss should not be NaN when all labels are IGNORE_INDEX"
+
 
 # ---------------------------------------------------------------------------
 # ActionCLS conversation templates tests
