@@ -33,12 +33,12 @@
 视频输入 
    ↓
 Qwen2.5-VL-3B (LoRA) - 视觉特征提取 + 多模态理解
-   ↓
-<ACT> token 隐藏状态
-   ↓
-ActionDecoder
-   ↓
-动作类别预测 → 交叉熵损失 → 反向传播更新（LoRA + Decoder）
+   ↓                                    ↓
+<ACT> token 隐藏状态              token 级 LM 损失（可选）
+   ↓                                    ↓
+ActionDecoder                           ↓
+   ↓                                    ↓
+动作类别预测 → 分类损失 ──── + ──── token 级 LM 损失 → 反向传播更新（LoRA + Decoder）
 ```
 
 ---
@@ -115,7 +115,8 @@ decoder.load_pretrained("/path/to/checkpoint")
 **关键要点**：
 - 必须在助手回复中包含 `<ACT>` token
 - `action_label` 字段必须是整数（类别索引，从0开始）
-- 所有 token 的标签都设为 `IGNORE_INDEX`，分类损失仅来自 ActionDecoder
+- 提示 token 的标签设为 `IGNORE_INDEX`，回复 token 保留原始 ID 以支持可选的 token 级语言建模损失
+- 分类损失来自 ActionDecoder，可通过 `action_cls_token_loss_weight` 控制额外的 token 级损失权重
 
 ### 3. 训练器实现
 
@@ -127,7 +128,7 @@ def compute_loss(self, model, inputs):
     # 1. 提取 action_labels
     action_labels = inputs.pop("action_labels")
     
-    # 2. 前向传播，获取隐藏状态
+    # 2. 前向传播，获取隐藏状态（保留 labels 以计算 token 级损失）
     outputs = model(**inputs, output_hidden_states=True)
     last_hidden = outputs.hidden_states[-1]
     
@@ -139,8 +140,14 @@ def compute_loss(self, model, inputs):
     # 4. 通过 ActionDecoder 计算 logits
     logits = self.action_decoder(action_hidden)
     
-    # 5. 计算交叉熵损失
-    loss = self.ce_loss(logits, action_labels)
+    # 5. 计算分类损失
+    cls_loss = self.ce_loss(logits, action_labels)
+    
+    # 6. 结合 token 级 LM 损失（当 action_cls_token_loss_weight > 0 时）
+    if token_loss_weight > 0 and outputs.loss is not None:
+        loss = cls_loss + token_loss_weight * outputs.loss
+    else:
+        loss = cls_loss
     return loss
 ```
 
@@ -494,6 +501,7 @@ action_decoder_type: linear  # 可选: linear, mlp, transformer, transformer_no_
 action_decoder_hidden_size: null  # mlp/transformer 模式下可设置，如 512
 action_decoder_path: null  # 如果有预训练的 decoder 可指定路径
 action_token_lr_scale: 0.1  # <ACT> token embedding 的学习率缩放
+action_cls_token_loss_weight: 0.1  # token 级 LM 损失的权重，帮助模型学习 <ACT> token 上下文（设为 0.0 可禁用）
 # transformer/transformer_no_vision 模式下的额外参数：
 # action_decoder_num_transformer_layers: 2  # Transformer 层数
 # action_decoder_num_heads: 8  # 注意力头数

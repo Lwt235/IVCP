@@ -20,6 +20,10 @@ corresponding last-layer hidden state, and feeds it through a lightweight
 ``ActionDecoder`` head.  The classification loss (cross-entropy over action
 classes) is back-propagated through the LoRA parameters of the backbone so that
 the reasoning-aware hidden representation is leveraged for action recognition.
+
+When ``action_cls_token_loss_weight > 0`` the standard token-level
+language-modelling loss is added (weighted) to help the model learn
+the ``<ACT>`` token in context.
 """
 
 import json
@@ -58,7 +62,8 @@ class ActionClassificationTrainer(Trainer):
     1. Runs the backbone with ``output_hidden_states=True``.
     2. Extracts the hidden state at the ``<ACT>`` position.
     3. Passes it through the ``ActionDecoder`` to obtain logits.
-    4. Returns the cross-entropy loss over the action labels.
+    4. Returns the cross-entropy loss over the action labels, optionally
+       combined with a weighted token-level language-modelling loss.
     """
 
     def __init__(
@@ -185,34 +190,34 @@ class ActionClassificationTrainer(Trainer):
         if pixel_values is None and pixel_values_videos is None:
             return None
 
-        # Encode visual features through the vision encoder
-        visual_features_list = []
+        # Encode visual features through the vision encoder.
+        # In practice, inputs contain *either* images *or* videos, so at most
+        # one of the branches below produces features.
+        all_visual_features: Optional[torch.Tensor] = None
 
         if pixel_values is not None and pixel_values.numel() > 0:
-            # Encode image features
             image_features = visual_module(pixel_values, grid_thw=image_grid_thw)
             if not isinstance(image_features, torch.Tensor):
                 image_features = getattr(image_features, "last_hidden_state", None)
                 if image_features is None:
                     raise TypeError("Vision encoder returned non-tensor output without last_hidden_state attribute.")
-            visual_features_list.append(image_features)
+            all_visual_features = image_features
 
         if pixel_values_videos is not None and pixel_values_videos.numel() > 0:
-            # Encode video features
             video_features = visual_module(pixel_values_videos, grid_thw=video_grid_thw)
             if not isinstance(video_features, torch.Tensor):
-                # video_features = getattr(video_features, "last_hidden_state", None)
+                # Use pooler_output for videos (spatiotemporal pooling) vs
+                # last_hidden_state for images (per-patch features).
                 video_features = getattr(video_features, "pooler_output", None)
                 if video_features is None:
                     raise TypeError("Vision encoder returned non-tensor output without last_hidden_state attribute.")
-            visual_features_list.append(video_features)
+            if all_visual_features is not None:
+                all_visual_features = torch.cat([all_visual_features, video_features], dim=0)
+            else:
+                all_visual_features = video_features
 
-        if not visual_features_list:
+        if all_visual_features is None:
             return None
-
-        # Concatenate all visual features
-        # Shape: (total_num_patches, hidden_size)
-        all_visual_features = torch.cat(visual_features_list, dim=0)
 
         # Reshape to per-batch format
         # For simplicity, we assume all samples in the batch have the same visual tokens
@@ -241,13 +246,19 @@ class ActionClassificationTrainer(Trainer):
     def _action_cls_forward(self, model, inputs):
         r"""Shared forward logic for both training and evaluation.
 
-        Pops ``action_labels`` / ``labels`` from *inputs*, runs the backbone
-        with ``output_hidden_states=True``, and returns ``(loss, logits, action_labels)``.
+        Pops ``action_labels`` from *inputs*, runs the backbone with
+        ``output_hidden_states=True``, and returns ``(loss, logits, action_labels)``.
+
+        When ``action_cls_token_loss_weight > 0`` the standard language-modelling
+        loss is included so that the model learns the ``<ACT>`` token in context.
         """
         # Pop action_labels so that the model forward does not receive them.
         action_labels = inputs.pop("action_labels")  # (B,)
-        # We do not need language-modelling labels for this stage.
-        inputs.pop("labels", None)
+
+        # Keep labels for optional token-level LM loss.
+        token_loss_weight = getattr(self.finetuning_args, "action_cls_token_loss_weight", 0.0)
+        if token_loss_weight <= 0:
+            inputs.pop("labels", None)
 
         # Extract visual tokens if needed for transformer decoder
         visual_tokens = None
@@ -279,7 +290,13 @@ class ActionClassificationTrainer(Trainer):
             logits = self.action_decoder(action_hidden)  # (B, num_classes)
 
         action_labels = action_labels.to(device=logits.device)
-        loss = self.ce_loss(logits, action_labels)
+        cls_loss = self.ce_loss(logits, action_labels)
+
+        # Combine with token-level LM loss when enabled.
+        if token_loss_weight > 0 and hasattr(outputs, "loss") and outputs.loss is not None:
+            loss = cls_loss + token_loss_weight * outputs.loss
+        else:
+            loss = cls_loss
 
         return loss, logits, action_labels
 

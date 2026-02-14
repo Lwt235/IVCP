@@ -23,6 +23,7 @@ action_decoder_num_heads: 8 # Transformer 注意力头数
 action_decoder_dropout: 0.1 # Dropout 比率
 action_decoder_path: null  # 如果有预训练的 decoder 可指定路径
 action_token_lr_scale: 0.1  # <ACT> token embedding 的学习率缩放
+action_cls_token_loss_weight: 0.1  # token 级 LM 损失权重（设为 0.0 可禁用）
 
 ### 数据集配置
 dataset: ucf101_train  # 使用准备好的 UCF101 训练集
