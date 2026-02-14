@@ -128,23 +128,29 @@ def compute_loss(self, model, inputs):
     # 1. 提取 action_labels
     action_labels = inputs.pop("action_labels")
     
-    # 2. 前向传播，获取隐藏状态（保留 labels 以计算 token 级损失）
+    # 2. 检查 labels 是否全为 IGNORE_INDEX（-100），若是则移除以避免 NaN 损失
+    if token_loss_weight > 0:
+        labels = inputs.get("labels", None)
+        if labels is not None and (labels == IGNORE_INDEX).all():
+            inputs.pop("labels", None)
+    
+    # 3. 前向传播，获取隐藏状态（保留 labels 以计算 token 级损失）
     outputs = model(**inputs, output_hidden_states=True)
     last_hidden = outputs.hidden_states[-1]
     
-    # 3. 定位 <ACT> token 位置并提取隐藏状态
+    # 4. 定位 <ACT> token 位置并提取隐藏状态
     action_hidden = self._get_action_hidden_states(
         inputs["input_ids"], last_hidden
     )
     
-    # 4. 通过 ActionDecoder 计算 logits
+    # 5. 通过 ActionDecoder 计算 logits
     logits = self.action_decoder(action_hidden)
     
-    # 5. 计算分类损失
+    # 6. 计算分类损失
     cls_loss = self.ce_loss(logits, action_labels)
     
-    # 6. 结合 token 级 LM 损失（当 action_cls_token_loss_weight > 0 时）
-    if token_loss_weight > 0 and outputs.loss is not None:
+    # 7. 结合 token 级 LM 损失（当 action_cls_token_loss_weight > 0 时）
+    if token_loss_weight > 0 and outputs.loss is not None and not torch.isnan(outputs.loss):
         loss = cls_loss + token_loss_weight * outputs.loss
     else:
         loss = cls_loss

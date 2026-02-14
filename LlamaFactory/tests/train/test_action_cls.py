@@ -294,7 +294,7 @@ class TestActionClsForward:
     """Verify that _action_cls_forward returns (loss, logits) and that
     prediction_step does not crash during evaluation."""
 
-    def _make_dummy_model(self, hidden_size, return_loss=False):
+    def _make_dummy_model(self, hidden_size, return_loss=False, return_nan_loss=False):
         """Return a tiny model-like callable that mimics VLM output."""
 
         class _FakeOutput:
@@ -307,7 +307,12 @@ class TestActionClsForward:
                 bs = kwargs["input_ids"].size(0)
                 sl = kwargs["input_ids"].size(1)
                 hs = torch.randn(bs, sl, hidden_size)
-                loss = torch.tensor(1.0) if return_loss and "labels" in kwargs else None
+                if return_nan_loss and "labels" in kwargs:
+                    loss = torch.tensor(torch.nan)
+                elif return_loss and "labels" in kwargs:
+                    loss = torch.tensor(1.0)
+                else:
+                    loss = None
                 return _FakeOutput(hidden_states=(hs,), loss=loss)
 
         return _FakeModel()
@@ -441,6 +446,84 @@ class TestActionClsForward:
         assert loss_combined.dim() == 0
         # The combined loss should include the weighted LM component (1.0 * 0.5 = 0.5).
         assert loss_combined.item() > loss_cls_only.item()
+
+    def test_nan_token_loss_ignored(self):
+        """When outputs.loss is NaN, it should be ignored and only cls_loss used."""
+        from llamafactory.model.action_decoder import ActionDecoder
+        from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
+
+        hidden_size = 32
+        num_classes = 5
+        action_token_id = 99
+        batch_size = 2
+
+        torch.manual_seed(42)
+        decoder = ActionDecoder(hidden_size=hidden_size, num_classes=num_classes)
+
+        # Model that returns NaN loss
+        model_nan = self._make_dummy_model(hidden_size, return_nan_loss=True)
+
+        trainer = object.__new__(ActionClassificationTrainer)
+        trainer.action_decoder = decoder
+        trainer.action_token_id = action_token_id
+        trainer.ce_loss = torch.nn.CrossEntropyLoss()
+        trainer.finetuning_args = self._make_finetuning_args(token_loss_weight=0.5)
+
+        input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
+        inputs = {
+            "input_ids": input_ids.clone(),
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": input_ids.clone(),
+            "action_labels": torch.tensor([0, 3]),
+        }
+
+        torch.manual_seed(0)
+        loss, logits, action_labels = trainer._action_cls_forward(model_nan, inputs)
+
+        # Loss should be a valid scalar (not NaN)
+        assert isinstance(loss, torch.Tensor)
+        assert loss.dim() == 0
+        assert not torch.isnan(loss), "Loss should not be NaN when outputs.loss is NaN"
+
+    def test_all_ignore_labels_stripped(self):
+        """When all labels are IGNORE_INDEX and token_loss_weight > 0, labels
+        should be removed from inputs to prevent NaN loss from the model."""
+        from llamafactory.model.action_decoder import ActionDecoder
+        from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
+
+        hidden_size = 32
+        num_classes = 5
+        action_token_id = 99
+        batch_size = 2
+
+        torch.manual_seed(42)
+        decoder = ActionDecoder(hidden_size=hidden_size, num_classes=num_classes)
+
+        # Model that would return NaN loss if labels are present and all -100
+        model = self._make_dummy_model(hidden_size, return_nan_loss=True)
+
+        trainer = object.__new__(ActionClassificationTrainer)
+        trainer.action_decoder = decoder
+        trainer.action_token_id = action_token_id
+        trainer.ce_loss = torch.nn.CrossEntropyLoss()
+        trainer.finetuning_args = self._make_finetuning_args(token_loss_weight=0.5)
+
+        input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
+        inputs = {
+            "input_ids": input_ids.clone(),
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": torch.full_like(input_ids, -100),  # ALL labels are -100
+            "action_labels": torch.tensor([0, 3]),
+        }
+
+        torch.manual_seed(0)
+        loss, logits, action_labels = trainer._action_cls_forward(model, inputs)
+
+        # Loss should be a valid scalar (not NaN) because all-IGNORE_INDEX
+        # labels are stripped before model forward.
+        assert isinstance(loss, torch.Tensor)
+        assert loss.dim() == 0
+        assert not torch.isnan(loss), "Loss should not be NaN when all labels are IGNORE_INDEX"
 
 
 # ---------------------------------------------------------------------------
