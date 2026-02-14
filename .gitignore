@@ -1,5 +1,7 @@
 /.history
-/.vscode
+/.vscode/*
+!/.vscode/launch.json
+!/.vscode/tasks.json
 /data
 
 ## LLamaFactory directories

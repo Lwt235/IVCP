@@ -1,0 +1,117 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "LlamaFactory: Train Action Cls (UCF101)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "llamafactory.cli",
+            "args": ["train", "examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml"],
+            "cwd": "${workspaceFolder}/LlamaFactory",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "5",
+                "HF_HUB_OFFLINE": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "LlamaFactory: Eval Action Cls (UCF101)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "llamafactory.cli",
+            "args": ["train", "examples/train_lora_action_cls/qwen2_5vl_ucf101_eval.yaml"],
+            "cwd": "${workspaceFolder}/LlamaFactory",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "4",
+                "HF_HUB_OFFLINE": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "LlamaFactory: Train Action Cls (SthSthV2)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "llamafactory.cli",
+            "args": ["train", "examples/train_lora_action_cls/qwen2_5vl_sthsthv2.yaml"],
+            "cwd": "${workspaceFolder}/LlamaFactory",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "6",
+                "HF_HUB_OFFLINE": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "LlamaFactory: Train LoRA SFT (Qwen2.5-VL)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "llamafactory.cli",
+            "args": ["train", "examples/train_lora/qwen2_5vl_lora_sft.yaml"],
+            "cwd": "${workspaceFolder}/LlamaFactory",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "5",
+                "HF_HUB_OFFLINE": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "LlamaFactory: Webchat Inference (Qwen2.5-VL)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "llamafactory.cli",
+            "args": ["webchat", "examples/inference/qwen2_5vl_lora_sft.yaml"],
+            "cwd": "${workspaceFolder}/LlamaFactory",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "5",
+                "HF_HUB_OFFLINE": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "LlamaFactory: Export LoRA (Qwen2.5-VL)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "llamafactory.cli",
+            "args": ["export", "examples/merge_lora/qwen2_5vl_lora_sft.yaml"],
+            "cwd": "${workspaceFolder}/LlamaFactory",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "5",
+                "HF_HUB_OFFLINE": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "LlamaFactory: Train (Custom YAML)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "llamafactory.cli",
+            "args": ["train", "${input:yamlConfig}"],
+            "cwd": "${workspaceFolder}/LlamaFactory",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "${input:cudaDevices}",
+                "HF_HUB_OFFLINE": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ],
+    "inputs": [
+        {
+            "id": "yamlConfig",
+            "type": "promptString",
+            "description": "Path to YAML config file (relative to LlamaFactory/)",
+            "default": "examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml"
+        },
+        {
+            "id": "cudaDevices",
+            "type": "promptString",
+            "description": "CUDA_VISIBLE_DEVICES value (e.g., 0, 0,1, etc.)",
+            "default": "0"
+        }
+    ]
+}
