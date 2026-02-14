@@ -1,0 +1,4 @@
+export CUDA_VISIBLE_DEVICES=6
+export HF_HUB_OFFLINE=1
+
+llamafactory-cli train examples/train_lora_action_cls/qwen2_5vl_sthsthv2.yaml
