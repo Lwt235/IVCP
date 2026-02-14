@@ -9,8 +9,7 @@
             "args": ["train", "examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml"],
             "cwd": "${workspaceFolder}/LlamaFactory",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "5",
-                "HF_HUB_OFFLINE": "1"
+                "CUDA_VISIBLE_DEVICES": "0"
             },
             "console": "integratedTerminal",
             "justMyCode": false
@@ -23,8 +22,7 @@
             "args": ["train", "examples/train_lora_action_cls/qwen2_5vl_ucf101_eval.yaml"],
             "cwd": "${workspaceFolder}/LlamaFactory",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "4",
-                "HF_HUB_OFFLINE": "1"
+                "CUDA_VISIBLE_DEVICES": "0"
             },
             "console": "integratedTerminal",
             "justMyCode": false
@@ -37,8 +35,7 @@
             "args": ["train", "examples/train_lora_action_cls/qwen2_5vl_sthsthv2.yaml"],
             "cwd": "${workspaceFolder}/LlamaFactory",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "6",
-                "HF_HUB_OFFLINE": "1"
+                "CUDA_VISIBLE_DEVICES": "0"
             },
             "console": "integratedTerminal",
             "justMyCode": false
@@ -51,8 +48,7 @@
             "args": ["train", "examples/train_lora/qwen2_5vl_lora_sft.yaml"],
             "cwd": "${workspaceFolder}/LlamaFactory",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "5",
-                "HF_HUB_OFFLINE": "1"
+                "CUDA_VISIBLE_DEVICES": "0"
             },
             "console": "integratedTerminal",
             "justMyCode": false
@@ -65,8 +61,7 @@
             "args": ["webchat", "examples/inference/qwen2_5vl_lora_sft.yaml"],
             "cwd": "${workspaceFolder}/LlamaFactory",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "5",
-                "HF_HUB_OFFLINE": "1"
+                "CUDA_VISIBLE_DEVICES": "0"
             },
             "console": "integratedTerminal",
             "justMyCode": false
@@ -79,8 +74,7 @@
             "args": ["export", "examples/merge_lora/qwen2_5vl_lora_sft.yaml"],
             "cwd": "${workspaceFolder}/LlamaFactory",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "5",
-                "HF_HUB_OFFLINE": "1"
+                "CUDA_VISIBLE_DEVICES": "0"
             },
             "console": "integratedTerminal",
             "justMyCode": false
@@ -93,8 +87,7 @@
             "args": ["train", "${input:yamlConfig}"],
             "cwd": "${workspaceFolder}/LlamaFactory",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "${input:cudaDevices}",
-                "HF_HUB_OFFLINE": "1"
+                "CUDA_VISIBLE_DEVICES": "${input:cudaDevices}"
             },
             "console": "integratedTerminal",
             "justMyCode": false
