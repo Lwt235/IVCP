@@ -211,6 +211,7 @@ class TestFinetuningArgsActionCls:
         assert args.action_decoder_num_transformer_layers == 2
         assert args.action_decoder_num_heads == 8
         assert args.action_decoder_dropout == 0.1
+        assert args.action_cls_token_loss_weight == 0.1
 
     def test_custom_action_cls_args(self):
         args = FinetuningArguments(
@@ -293,21 +294,29 @@ class TestActionClsForward:
     """Verify that _action_cls_forward returns (loss, logits) and that
     prediction_step does not crash during evaluation."""
 
-    def _make_dummy_model(self, hidden_size):
+    def _make_dummy_model(self, hidden_size, return_loss=False):
         """Return a tiny model-like callable that mimics VLM output."""
 
         class _FakeOutput:
-            def __init__(self, hidden_states):
+            def __init__(self, hidden_states, loss=None):
                 self.hidden_states = hidden_states
+                self.loss = loss
 
         class _FakeModel:
             def __call__(self, **kwargs):
                 bs = kwargs["input_ids"].size(0)
                 sl = kwargs["input_ids"].size(1)
                 hs = torch.randn(bs, sl, hidden_size)
-                return _FakeOutput(hidden_states=(hs,))
+                loss = torch.tensor(1.0) if return_loss and "labels" in kwargs else None
+                return _FakeOutput(hidden_states=(hs,), loss=loss)
 
         return _FakeModel()
+
+    def _make_finetuning_args(self, token_loss_weight=0.0):
+        return FinetuningArguments(
+            stage="action_cls",
+            action_cls_token_loss_weight=token_loss_weight,
+        )
 
     def test_action_cls_forward_returns_tuple(self):
         """_action_cls_forward must return (loss, logits, action_labels)."""
@@ -326,6 +335,7 @@ class TestActionClsForward:
         trainer.action_decoder = decoder
         trainer.action_token_id = action_token_id
         trainer.ce_loss = torch.nn.CrossEntropyLoss()
+        trainer.finetuning_args = self._make_finetuning_args()
 
         # Inputs with <ACT> token at position 2
         input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
@@ -361,6 +371,7 @@ class TestActionClsForward:
         trainer.action_decoder = decoder
         trainer.action_token_id = action_token_id
         trainer.ce_loss = torch.nn.CrossEntropyLoss()
+        trainer.finetuning_args = self._make_finetuning_args()
 
         input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
         inputs = {
@@ -375,6 +386,50 @@ class TestActionClsForward:
 
         assert isinstance(result, torch.Tensor)
         assert result.dim() == 0
+
+    def test_token_loss_included_when_weight_positive(self):
+        """When action_cls_token_loss_weight > 0 the LM loss should be added."""
+        from llamafactory.model.action_decoder import ActionDecoder
+        from llamafactory.train.action_cls.trainer import ActionClassificationTrainer
+
+        hidden_size = 32
+        num_classes = 5
+        action_token_id = 99
+        batch_size = 2
+
+        decoder = ActionDecoder(hidden_size=hidden_size, num_classes=num_classes)
+        trainer = object.__new__(ActionClassificationTrainer)
+        trainer.action_decoder = decoder
+        trainer.action_token_id = action_token_id
+        trainer.ce_loss = torch.nn.CrossEntropyLoss()
+        trainer.finetuning_args = self._make_finetuning_args(token_loss_weight=0.5)
+
+        input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
+        inputs_with_lm = {
+            "input_ids": input_ids.clone(),
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": input_ids.clone(),  # non-ignored labels
+            "action_labels": torch.tensor([0, 3]),
+        }
+        inputs_without_lm = {
+            "input_ids": input_ids.clone(),
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": input_ids.clone(),
+            "action_labels": torch.tensor([0, 3]),
+        }
+
+        # Model that returns loss when labels are provided
+        model_with_loss = self._make_dummy_model(hidden_size, return_loss=True)
+        loss_with, _, _ = trainer._action_cls_forward(model_with_loss, inputs_with_lm)
+
+        # Model that does NOT return loss (weight=0)
+        trainer.finetuning_args = self._make_finetuning_args(token_loss_weight=0.0)
+        model_no_loss = self._make_dummy_model(hidden_size, return_loss=False)
+        loss_without, _, _ = trainer._action_cls_forward(model_no_loss, inputs_without_lm)
+
+        # Both should be valid scalars
+        assert loss_with.dim() == 0
+        assert loss_without.dim() == 0
 
 
 # ---------------------------------------------------------------------------

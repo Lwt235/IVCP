@@ -484,6 +484,16 @@ class ActionClassificationArguments:
         default=0.1,
         metadata={"help": "Dropout rate for transformer decoder layers."},
     )
+    action_cls_token_loss_weight: float = field(
+        default=0.1,
+        metadata={
+            "help": (
+                "Weight for the token-level language modelling loss added to the classification loss. "
+                "A positive value helps the model learn the <ACT> token in context. "
+                "Set to 0.0 to disable token-level loss (previous behaviour)."
+            )
+        },
+    )
 
 
 @dataclass

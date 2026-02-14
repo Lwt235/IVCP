@@ -21,8 +21,9 @@ numeric ``action_label`` that will be used as the classification target.
 The processor builds the token-level inputs in the same way as the supervised
 processor, but:
 
-* All generation tokens are masked (``IGNORE_INDEX``) in ``labels`` so that
-  they do **not** contribute to any language-modelling loss.
+* Prompt tokens are masked (``IGNORE_INDEX``) in ``labels`` while response
+  tokens retain their IDs so that an optional token-level language modelling
+  loss can help the model learn to use the ``<ACT>`` token in context.
 * The integer ``action_label`` is stored in the output batch and later used by
   the ``ActionClassificationTrainer`` to compute the cross-entropy loss on the
   ``<ACT>`` hidden state.
@@ -51,9 +52,10 @@ class ActionClassificationDatasetProcessor(DatasetProcessor):
     r"""Build inputs for the video action classification stage.
 
     The final ``input_ids`` follows the same layout as supervised training (the
-    prompt encourages reasoning) but **all** label positions are set to
-    ``IGNORE_INDEX`` because the classification loss is computed separately from
-    the ``<ACT>`` hidden state.
+    prompt encourages reasoning).  Prompt tokens are masked with ``IGNORE_INDEX``
+    while response tokens retain their IDs so that an optional token-level
+    language modelling loss can be computed alongside the classification loss
+    from the ``<ACT>`` hidden state.
     """
 
     def _encode_data_example(
@@ -87,8 +89,8 @@ class ActionClassificationDatasetProcessor(DatasetProcessor):
             total_length += source_len + target_len
 
             input_ids += source_ids + target_ids
-            # All tokens are masked – classification loss comes from <ACT> head.
-            labels += [IGNORE_INDEX] * (source_len + target_len)
+            # Mask prompt tokens; keep response tokens for optional token-level LM loss.
+            labels += [IGNORE_INDEX] * source_len + target_ids
 
         if self.template.efficient_eos:
             input_ids += [self.tokenizer.eos_token_id]
