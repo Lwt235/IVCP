@@ -206,6 +206,8 @@ class ActionClassificationTrainer(Trainer):
         if pixel_values_videos is not None and pixel_values_videos.numel() > 0:
             video_features = visual_module(pixel_values_videos, grid_thw=video_grid_thw)
             if not isinstance(video_features, torch.Tensor):
+                # Use pooler_output for videos (spatiotemporal pooling) vs
+                # last_hidden_state for images (per-patch features).
                 video_features = getattr(video_features, "pooler_output", None)
                 if video_features is None:
                     raise TypeError("Vision encoder returned non-tensor output without last_hidden_state attribute.")

@@ -23,6 +23,7 @@ action_decoder_num_heads: 8 # Transformer 注意力头数
 action_decoder_dropout: 0.1 # Dropout 比率
 action_decoder_path: null
 action_token_lr_scale: 0.1
+action_cls_token_loss_weight: 0.1
 
 ### 数据集配置
 dataset: sthsthv2_train

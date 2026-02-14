@@ -397,39 +397,50 @@ class TestActionClsForward:
         action_token_id = 99
         batch_size = 2
 
+        torch.manual_seed(42)
         decoder = ActionDecoder(hidden_size=hidden_size, num_classes=num_classes)
-        trainer = object.__new__(ActionClassificationTrainer)
-        trainer.action_decoder = decoder
-        trainer.action_token_id = action_token_id
-        trainer.ce_loss = torch.nn.CrossEntropyLoss()
-        trainer.finetuning_args = self._make_finetuning_args(token_loss_weight=0.5)
+
+        # Use the same model for both runs so hidden states are identical.
+        model_with_loss = self._make_dummy_model(hidden_size, return_loss=True)
+
+        # --- run with token_loss_weight = 0.0 (cls loss only) ---
+        trainer_no_lm = object.__new__(ActionClassificationTrainer)
+        trainer_no_lm.action_decoder = decoder
+        trainer_no_lm.action_token_id = action_token_id
+        trainer_no_lm.ce_loss = torch.nn.CrossEntropyLoss()
+        trainer_no_lm.finetuning_args = self._make_finetuning_args(token_loss_weight=0.0)
 
         input_ids = torch.tensor([[1, 2, action_token_id, 3]] * batch_size)
-        inputs_with_lm = {
-            "input_ids": input_ids.clone(),
-            "attention_mask": torch.ones_like(input_ids),
-            "labels": input_ids.clone(),  # non-ignored labels
-            "action_labels": torch.tensor([0, 3]),
-        }
-        inputs_without_lm = {
+        inputs_0 = {
             "input_ids": input_ids.clone(),
             "attention_mask": torch.ones_like(input_ids),
             "labels": input_ids.clone(),
             "action_labels": torch.tensor([0, 3]),
         }
+        torch.manual_seed(0)
+        loss_cls_only, _, _ = trainer_no_lm._action_cls_forward(model_with_loss, inputs_0)
 
-        # Model that returns loss when labels are provided
-        model_with_loss = self._make_dummy_model(hidden_size, return_loss=True)
-        loss_with, _, _ = trainer._action_cls_forward(model_with_loss, inputs_with_lm)
+        # --- run with token_loss_weight = 0.5 ---
+        trainer_with_lm = object.__new__(ActionClassificationTrainer)
+        trainer_with_lm.action_decoder = decoder
+        trainer_with_lm.action_token_id = action_token_id
+        trainer_with_lm.ce_loss = torch.nn.CrossEntropyLoss()
+        trainer_with_lm.finetuning_args = self._make_finetuning_args(token_loss_weight=0.5)
 
-        # Model that does NOT return loss (weight=0)
-        trainer.finetuning_args = self._make_finetuning_args(token_loss_weight=0.0)
-        model_no_loss = self._make_dummy_model(hidden_size, return_loss=False)
-        loss_without, _, _ = trainer._action_cls_forward(model_no_loss, inputs_without_lm)
+        inputs_1 = {
+            "input_ids": input_ids.clone(),
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": input_ids.clone(),
+            "action_labels": torch.tensor([0, 3]),
+        }
+        torch.manual_seed(0)
+        loss_combined, _, _ = trainer_with_lm._action_cls_forward(model_with_loss, inputs_1)
 
-        # Both should be valid scalars
-        assert loss_with.dim() == 0
-        assert loss_without.dim() == 0
+        # Both should be valid scalars.
+        assert loss_cls_only.dim() == 0
+        assert loss_combined.dim() == 0
+        # The combined loss should include the weighted LM component (1.0 * 0.5 = 0.5).
+        assert loss_combined.item() > loss_cls_only.item()
 
 
 # ---------------------------------------------------------------------------
