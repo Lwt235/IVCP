@@ -9,7 +9,7 @@
             "args": ["train", "examples/train_lora_action_cls/qwen2_5vl_ucf101.yaml"],
             "cwd": "${workspaceFolder}/LlamaFactory",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
+                "CUDA_VISIBLE_DEVICES": "6"
             },
             "console": "integratedTerminal",
             "justMyCode": false

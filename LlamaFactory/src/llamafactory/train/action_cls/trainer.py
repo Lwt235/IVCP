@@ -201,7 +201,8 @@ class ActionClassificationTrainer(Trainer):
             # Encode video features
             video_features = visual_module(pixel_values_videos, grid_thw=video_grid_thw)
             if not isinstance(video_features, torch.Tensor):
-                video_features = getattr(video_features, "last_hidden_state", None)
+                # video_features = getattr(video_features, "last_hidden_state", None)
+                video_features = getattr(video_features, "pooler_output", None)
                 if video_features is None:
                     raise TypeError("Vision encoder returned non-tensor output without last_hidden_state attribute.")
             visual_features_list.append(video_features)
